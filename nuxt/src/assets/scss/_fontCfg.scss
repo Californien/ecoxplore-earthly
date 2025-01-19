@@ -1,0 +1,13 @@
+$font: 'DM Sans';
+
+@font-face {
+	font-family: $font;
+	src: url('../../static/fonts/DMSans-V.woff2') format('woff2-variations');
+	font-weight: 100 1000;
+}
+
+body,
+html,
+* {
+	font-family: $font;
+}
