@@ -28,8 +28,8 @@ export default defineNuxtConfig({
 			preprocessorOptions: {
 				scss: {
 					additionalData: `
-						@use '@a/scss/_responsive.scss' as *;
-						@use '@a/scss/_fontCfg.scss' as *;
+						@use '@a/scss/fontCfg' as *;
+						@use '@a/scss/presets' as *;
 					`
 				}
 			}

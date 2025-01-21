@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 	useHead({
-		title: 'Hello World!'
+		title: 'Earthly - Home'
 	});
 	console.log('Hello World from index.vue');
 </script>
