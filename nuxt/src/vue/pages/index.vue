@@ -1,12 +1,14 @@
 <template>
 	<div>
-		<h3>Index page</h3>
+		<h3>index.vue</h3>
 	</div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 	useHead({
-		title: 'Earthly - Home'
+		title: 'Loading...'
 	});
-	console.log('Hello World from index.vue');
+	definePageMeta({
+		middleware: ['auth-redirect']
+	});
 </script>

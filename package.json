@@ -11,9 +11,11 @@
 		"ci:strapi": "cd strapi && npm ci",
 		"ci": "node ./scripts/ci.js",
 		"coverage": "cd nuxt && npm run coverage",
-		"dev:nuxt": "cd nuxt && npm run dev:ip",
+		"dev:nuxt": "cd nuxt && npm run dev",
+		"dev:nuxt:ip": "cd nuxt && npm run dev:ip",
 		"dev:strapi": "cd strapi && npm run develop",
 		"dev": "concurrently -n STRAPI,NUXT -c cyan,magenta \"npm run dev:strapi\" \"npm run dev:nuxt\"",
+		"dev:ip": "concurrently -n STRAPI,NUXT -c cyan,magenta \"npm run dev:strapi\" \"npm run dev:nuxt:ip\"",
 		"format": "prettier --write \"scripts/*.js\" \"nuxt/nuxt.config.ts\" \"nuxt/src/**/*.{js,ts,vue}\" \"nuxt/src/assets/scss/*.scss\" \"strapi/src/**/*.js\"",
 		"i:nuxt": "cd nuxt && npm install",
 		"i:strapi": "cd strapi && npm install",
@@ -35,7 +37,7 @@
 		"typescript": "^5.6.3"
 	},
 	"engines": {
-		"node": ">=18.x.x <=20.x.x",
+		"node": ">=20.x.x <=20.x.x",
 		"npm": ">=6.0.0"
 	},
 	"keywords": [
