@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<form novalidate @submit.prevent="register_">
+		<form novalidate @submit.prevent="registerUser">
 			<p>mail</p>
 			<input
 				id="email"
@@ -30,6 +30,8 @@
 				autocomplete="new-password" />
 			<button type="submit">Submit</button>
 		</form>
+		<input v-model="code" type="text" placeholder="Code" />
+		<button @click="verifyUser">Verify code</button>
 	</div>
 </template>
 
@@ -41,24 +43,28 @@
 		middleware: ['logged-in']
 	});
 
-	const { register } = useStrapiAuth();
 	const router = useRouter();
-
 	const email = ref<string>('');
 	const username = ref<string>('');
 	const pw1 = ref<string>('');
 	const pw2 = ref<string>('');
+	const code = ref<string>('');
+	const { register } = useStrapiAuth();
 
-	async function register_() {
+	async function registerUser() {
 		try {
 			await register({
-				username: username.value,
 				email: email.value,
+				username: username.value,
 				password: pw1.value
 			});
 			router.go(0);
 		} catch (e) {
 			console.error(e);
 		}
+	}
+
+	async function verifyUser() {
+		// ...
 	}
 </script>
