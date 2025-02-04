@@ -54,6 +54,13 @@ export default defineNuxtConfig({
 	modules: ['@nuxtjs/strapi', '@nuxt/test-utils/module', '@nuxt/eslint'],
 	plugins: [],
 
+	// Runtime config
+	runtimeConfig: {
+		public: {
+			strapi_url: process.env.STRAPI_URL || 'http://localhost:1337'
+		}
+	},
+
 	// Module settings
 	// -> Strapi
 	strapi: {
