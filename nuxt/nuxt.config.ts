@@ -1,5 +1,5 @@
-import { defineNuxtConfig } from 'nuxt/config';
 import { resolve } from 'path';
+import { defineNuxtConfig } from 'nuxt/config';
 
 export default defineNuxtConfig({
 	// DEV-Tools
@@ -8,32 +8,33 @@ export default defineNuxtConfig({
 	// Typescript
 	typescript: { strict: true },
 
-	// Directories
-	srcDir: 'src/',
-
-	dir: {
-		layouts: 'vue/layouts',
-		pages: 'vue/pages'
-	},
-
-	components: {
-		dirs: ['vue/components']
-	},
-
 	// Styling
-	css: ['/assets/scss/main.scss'],
+	tailwindcss: {
+		exposeConfig: true,
+		editorSupport: true
+	},
 
-	vite: {
-		css: {
-			preprocessorOptions: {
-				scss: {
-					additionalData: `
-						@use '@a/scss/fontCfg' as *;
-						@use '@a/scss/presets' as *;
-					`
-				}
+	colorMode: {
+		classSuffix: ''
+	},
+
+	imports: {
+		imports: [
+			{
+				from: 'tailwind-variants',
+				name: 'tv'
+			},
+			{
+				from: 'tailwind-variants',
+				name: 'VariantProps',
+				type: true
+			},
+			{
+				from: 'vue-sonner',
+				name: 'toast',
+				as: 'useSonner'
 			}
-		}
+		]
 	},
 
 	// Alias
@@ -51,7 +52,19 @@ export default defineNuxtConfig({
 	},
 
 	// Modules & Plugins
-	modules: ['@nuxtjs/strapi', '@nuxt/test-utils/module', '@nuxt/eslint'],
+	modules: [
+		'@nuxtjs/strapi',
+		'@nuxt/test-utils/module',
+		'@nuxt/eslint',
+		'@nuxtjs/tailwindcss',
+		'@nuxtjs/color-mode',
+		'@vueuse/nuxt',
+		'@nuxt/icon',
+		'@nuxt/fonts',
+		'@vee-validate/nuxt',
+		'@morev/vue-transitions/nuxt'
+	],
+
 	plugins: [],
 
 	// Runtime config
@@ -73,6 +86,11 @@ export default defineNuxtConfig({
 			secure: process.env.NODE_ENV === 'production',
 			sameSite: true
 		}
+	},
+
+	// Build settings
+	build: {
+		transpile: ['vue-sonner']
 	},
 
 	// Compatibility Date
