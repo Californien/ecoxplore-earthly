@@ -9,6 +9,8 @@ export default defineNuxtConfig({
 	typescript: { strict: true },
 
 	// Styling
+	css: ['./assets/scss/main.scss'],
+
 	tailwindcss: {
 		exposeConfig: true,
 		editorSupport: true
@@ -40,13 +42,15 @@ export default defineNuxtConfig({
 	// Alias
 	alias: {
 		'@a': resolve(__dirname, './src/assets'),
-		'@p': resolve(__dirname, './src/public'),
-		'@s': resolve(__dirname, './src/static')
+		'@p': resolve(__dirname, './src/public')
 	},
 
 	// App settings
 	app: {
-		pageTransition: {},
+		pageTransition: {
+			name: 'default',
+			mode: 'out-in'
+		},
 		layoutTransition: {},
 		head: {}
 	},
@@ -67,18 +71,14 @@ export default defineNuxtConfig({
 
 	plugins: [],
 
-	// Runtime config
-	runtimeConfig: {
-		public: {
-			strapi_url: process.env.STRAPI_URL || 'http://localhost:1337'
-		}
-	},
-
 	// Module settings
 	// -> Strapi
 	strapi: {
-		url: process.env.STRAPI_URL || 'http://localhost:1337',
-		auth: { populate: '*' },
+		url:
+			process.env.NODE_ENV === 'production'
+				? process.env.STRAPI_URL
+				: 'http://localhost:1337',
+		auth: { populate: ['role'] },
 		cookieName: 'jwt_auth',
 		cookie: {
 			path: '/',

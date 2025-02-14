@@ -1,6 +1,8 @@
 <template>
 	<div class="flex h-screen items-center justify-center">
-		<div class="w-full max-w-[330px] px-5">
+		<div
+			class="absolute h-full w-full bg-[radial-gradient(theme(colors.border/90%)_1px,transparent_1px)] [background-size:20px_20px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_60%,transparent_100%)]" />
+		<div class="relative w-full max-w-[330px] px-5">
 			<h1 class="text-2xl font-bold tracking-tight lg:text-3xl">
 				Einloggen
 			</h1>
@@ -8,7 +10,7 @@
 				Nenne bitte E-Mail und Passwort, um dich einzuloggen.
 			</p>
 
-			<form class="mt-10" @submit="submit">
+			<form novalidate class="mt-10" @submit="submit">
 				<fieldset :disabled="isSubmitting" class="grid gap-5">
 					<div>
 						<UiVeeInput
@@ -23,6 +25,7 @@
 							label="Passwort"
 							type="password"
 							autocomplete="current-password"
+							placeholder="••••••••"
 							name="password" />
 					</div>
 					<div>
@@ -36,7 +39,7 @@
 			<p class="mt-8 text-sm">
 				<NuxtLink
 					class="font-semibold text-primary underline-offset-2 hover:underline"
-					to="#">
+					to="/auth/forgot-password">
 					Passwort vergessen?
 				</NuxtLink>
 			</p>
@@ -53,7 +56,8 @@
 </template>
 
 <script lang="ts" setup>
-	import { object, string } from 'yup';
+	import { object, string, setLocale } from 'yup';
+	import { de } from 'yup-locales';
 	import type { InferType } from 'yup';
 
 	useSeoMeta({
@@ -64,9 +68,14 @@
 		title: 'Earthly - Login'
 	});
 	definePageMeta({
+		pageTransition: {
+			name: 'auth_next',
+			mode: 'out-in'
+		},
 		middleware: ['logged-in']
 	});
 
+	setLocale(de);
 	const LoginSchema = object({
 		email: string().email().required().label('E-Mail'),
 		password: string().required().label('Passwort').min(8)
@@ -81,8 +90,8 @@
 	const submit = handleSubmit(async (_) => {
 		try {
 			// TODO Call API to log in
-			// TODO Redirect to dashboard ('/home' page)
-			useSonner('Login erfolgreich!', {
+			// TODO Redirect to dashboard ('/dashboard' page)
+			useSonner.success('Login erfolgreich!', {
 				description: 'Du hast dich erfolgreich eingeloggt!'
 			});
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any

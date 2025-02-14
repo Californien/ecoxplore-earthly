@@ -858,20 +858,21 @@ export interface PluginUsersPermissionsUser
 			Schema.Attribute.SetMinMaxLength<{
 				minLength: 6;
 			}>;
+		lastLoggedIn: Schema.Attribute.DateTime;
 		locale: Schema.Attribute.String & Schema.Attribute.Private;
 		localizations: Schema.Attribute.Relation<
 			'oneToMany',
 			'plugin::users-permissions.user'
 		> &
 			Schema.Attribute.Private;
+		otp: Schema.Attribute.String & Schema.Attribute.Private;
+		otpExpiresAt: Schema.Attribute.DateTime & Schema.Attribute.Private;
 		password: Schema.Attribute.Password &
 			Schema.Attribute.Private &
 			Schema.Attribute.SetMinMaxLength<{
 				minLength: 6;
 			}>;
-		premium: Schema.Attribute.Boolean &
-			Schema.Attribute.Required &
-			Schema.Attribute.DefaultTo<false>;
+		premium: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
 		provider: Schema.Attribute.String;
 		publishedAt: Schema.Attribute.DateTime;
 		resetPasswordToken: Schema.Attribute.String & Schema.Attribute.Private;

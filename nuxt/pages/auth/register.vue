@@ -9,7 +9,7 @@
 			</h1>
 			<p class="mt-1 text-muted-foreground">{{ description }}</p>
 
-			<form novalidate class="mt-10" @submit="submit">
+			<form novalidate class="mt-10" @submit.prevent="submit">
 				<fieldset :disabled="isSubmitting" class="grid gap-5">
 					<UiVeeInput
 						required
@@ -30,14 +30,14 @@
 						label="Passwort"
 						type="password"
 						autocomplete="current-password"
-						name="password" />
+						name="password"
+						placeholder="••••••••"
+						@input="passwordInput" />
 					<ul class="flex flex-col gap-4">
 						<li
 							class="flex items-center gap-3 text-sm text-muted-foreground">
-							<!-- FIXME Icons are not turning green when the password is valid, but when the whole form is valid. thats wrong. obviously. -->
-
 							<Icon
-								:class="[meta.valid ? 'text-green-500' : '']"
+								:class="[pwLengthValid ? 'text-green-500' : '']"
 								class="size-[18px]"
 								name="lucide:check-circle-2" />
 							<span>Mindestens 8 Zeichen</span>
@@ -45,7 +45,9 @@
 						<li
 							class="flex items-center gap-3 text-sm text-muted-foreground">
 							<Icon
-								:class="[meta.valid ? 'text-green-500' : '']"
+								:class="[
+									pwComplexityValid ? 'text-green-500' : ''
+								]"
 								class="size-[18px]"
 								name="lucide:check-circle-2" />
 							<span>
@@ -72,8 +74,13 @@
 </template>
 
 <script lang="ts" setup>
-	import { object, string } from 'yup';
+	import { object, string, setLocale } from 'yup';
 	import type { InferType } from 'yup';
+	import { de } from 'yup-locales';
+
+	const password = ref<string>();
+	const { register } = useStrapiAuth();
+	const router = useRouter();
 
 	const title = 'Account erstellen';
 	const description = 'Der erste Schritt zur besseren Zukunft...';
@@ -83,8 +90,14 @@
 		title: 'Earthly - Registrieren'
 	});
 	definePageMeta({
+		pageTransition: {
+			name: 'auth_next',
+			mode: 'out-in'
+		},
 		middleware: ['logged-in']
 	});
+
+	setLocale(de);
 
 	const Schema = object({
 		name: string().required().label('Name').min(3).max(50),
@@ -104,26 +117,70 @@
 			)
 	});
 
-	const { handleSubmit, isSubmitting, meta } = useForm<
-		InferType<typeof Schema>
-	>({
+	// Password ticks color detection
+	let pwLengthValid = false;
+	let pwComplexityValid = false;
+
+	function passwordInput() {
+		const input: string | undefined = password.value;
+		if (input) {
+			if (input.length >= 8) {
+				pwLengthValid = true;
+			} else {
+				pwLengthValid = false;
+			}
+
+			const regexNumbers = /\d/;
+			const regexSpecialChar = /[!@#$%^&*(),.?":{}|<>]/;
+			if (regexNumbers.test(input) && regexSpecialChar.test(input)) {
+				pwComplexityValid = true;
+			} else {
+				pwComplexityValid = false;
+			}
+		}
+	}
+
+	watch(password, (newPassword) => {
+		if (newPassword === '') {
+			pwLengthValid = false;
+			pwComplexityValid = false;
+		} else {
+			passwordInput();
+		}
+	});
+
+	const { handleSubmit, isSubmitting } = useForm<InferType<typeof Schema>>({
 		validationSchema: Schema
 	});
 
-	const submit = handleSubmit(async (_) => {
+	const submit = handleSubmit(async (values) => {
 		try {
+			// TODO add `useSonner.promise`
 			// TODO Call API to create account AFTER otp
-			// TODO Redirect user to OTP page
+			// FIXME Type declaration
 
-			useSonner.success('Überprüfe deinen Posteingang', {
-				description:
-					'Wir haben dir eine E-Mail mit einem Verifizierungscode gesendet.'
+			await register({
+				username: values.name,
+				email: values.email,
+				password: values.password,
+				lastLoggedIn: new Date(Date.now())
 			});
+
+			useSonner.success('Fertig!', {
+				description: 'Dein Account wurde erfolgreich erstellt.'
+			});
+			return router.push('/auth/otp');
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error: any) {
-			useSonner.error('Account erstellen fehlgeschlagen!', {
+			useSonner.error('Ein Fehler ist aufgetreten!', {
 				description: error.error.message
 			});
 		}
 	});
 </script>
+
+<style lang="scss">
+	span.iconify {
+		transition: all 0.3s;
+	}
+</style>

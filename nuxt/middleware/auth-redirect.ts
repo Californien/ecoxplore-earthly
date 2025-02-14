@@ -3,6 +3,6 @@ export default defineNuxtRouteMiddleware(async () => {
 	if (!user.value) {
 		return navigateTo('/auth/login', { replace: true });
 	} else if (user.value) {
-		return navigateTo('/home', { replace: true });
+		return navigateTo('/dashboard', { replace: true });
 	}
 });

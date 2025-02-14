@@ -65,10 +65,22 @@
       "inversedBy": "users",
       "configurable": false
     },
+    "lastLoggedIn": {
+      "type": "datetime"
+    },
+    "otp": {
+      "type": "string",
+      "regex": "^\\d{6}$",
+      "unique": false,
+      "private": true
+    },
+    "otpExpiresAt": {
+      "type": "datetime",
+      "private": true
+    },
     "premium": {
       "type": "boolean",
-      "default": false,
-      "required": true
+      "default": false
     }
   }
 }

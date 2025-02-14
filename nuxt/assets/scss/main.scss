@@ -1,0 +1,73 @@
+// Presets
+$white: #fafafa;
+$black: #09090b;
+
+body,
+html {
+	overflow: hidden;
+	width: 100%;
+	height: 100vh;
+	font-size: 1em;
+	margin: 0;
+	padding: 0;
+	background-color: $black;
+	color: $white;
+	&::-webkit-scrollbar {
+		width: 7px;
+		&-track {
+			background: $black;
+		}
+		&-thumb {
+			background: rgba($white, 0.3);
+			border-radius: 10px;
+			&:hover {
+				background: rgba($white, 0.5);
+			}
+		}
+	}
+}
+
+* {
+	box-sizing: border-box;
+}
+
+::selection {
+	background-color: $white;
+	color: black;
+}
+
+// Page Transitions
+
+.auth_next-enter-active,
+.auth_next-leave-active {
+	transition: all 0.6s;
+}
+
+.auth_next-enter-from {
+	opacity: 0;
+	filter: blur(10px);
+	transform: translateX(10%);
+}
+
+.auth_next-leave-to {
+	opacity: 0;
+	filter: blur(10px);
+	transform: translateX(-10%);
+}
+
+.default-enter-active,
+.default-leave-active {
+	transition: all 0.35s;
+}
+
+.default-enter-from {
+	opacity: 0;
+	filter: blur(5px);
+	transform: scale(1.1);
+}
+
+.default-leave-to {
+	opacity: 0;
+	filter: blur(5px);
+	transform: scale(1.1);
+}

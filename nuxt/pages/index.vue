@@ -9,6 +9,6 @@
 		title: 'Loading...'
 	});
 	definePageMeta({
-		middleware: ['auth-redirect']
+		middleware: ['auth', 'logged-in']
 	});
 </script>
