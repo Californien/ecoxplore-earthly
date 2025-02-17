@@ -59,6 +59,8 @@
 	import { object, string, setLocale } from 'yup';
 	import { de } from 'yup-locales';
 	import type { InferType } from 'yup';
+	const router = useRouter();
+	const { login } = useStrapiAuth();
 
 	useSeoMeta({
 		title: 'Einloggen',
@@ -87,13 +89,16 @@
 		validationSchema: LoginSchema
 	});
 
-	const submit = handleSubmit(async (_) => {
+	const submit = handleSubmit(async (values) => {
 		try {
-			// TODO Call API to log in
-			// TODO Redirect to dashboard ('/dashboard' page)
+			await login({
+				identifier: values.email,
+				password: values.password
+			});
 			useSonner.success('Login erfolgreich!', {
 				description: 'Du hast dich erfolgreich eingeloggt!'
 			});
+			router.push('/dashboard');
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error: any) {
 			useSonner.error('Login fehlgeschlagen', {

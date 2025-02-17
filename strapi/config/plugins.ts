@@ -14,7 +14,7 @@ module.exports = ({ env }) => ({
 	'users-permissions': {
 		config: {
 			register: {
-				allowedFields: ['lastLoggedIn', 'confirmed']
+				allowedFields: ['lastLoggedIn']
 			}
 		}
 	}

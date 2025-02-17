@@ -110,7 +110,7 @@
 				'password',
 				'Passwort muss mindestens eine Zahl und ein Sonderzeichen enthalten!',
 				(value) => {
-					return /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/.test(
+					return /^(?=.*[0-9])(?=.*[\W_])[a-zA-Z0-9\W_]{8,}$/.test(
 						value
 					);
 				}
@@ -131,7 +131,8 @@
 			}
 
 			const regexNumbers = /\d/;
-			const regexSpecialChar = /[!@#$%^&*(),.?":{}|<>]/;
+			const regexSpecialChar =
+				/^(?=.*[0-9])(?=.*[\W_])[a-zA-Z0-9\W_]{8,}$/;
 			if (regexNumbers.test(input) && regexSpecialChar.test(input)) {
 				pwComplexityValid = true;
 			} else {
@@ -169,7 +170,7 @@
 			useSonner.success('Fertig!', {
 				description: 'Dein Account wurde erfolgreich erstellt.'
 			});
-			return router.push('/auth/otp');
+			return router.push('/dashboard');
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error: any) {
 			useSonner.error('Ein Fehler ist aufgetreten!', {
