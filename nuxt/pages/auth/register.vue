@@ -94,7 +94,8 @@
 			name: 'auth_next',
 			mode: 'out-in'
 		},
-		middleware: ['logged-in']
+		middleware: ['logged-in'],
+		layout: 'empty'
 	});
 
 	setLocale(de);
@@ -156,15 +157,10 @@
 
 	const submit = handleSubmit(async (values) => {
 		try {
-			// TODO add `useSonner.promise`
-			// TODO Call API to create account AFTER otp
-			// FIXME Type declaration
-
 			await register({
 				username: values.name,
 				email: values.email,
-				password: values.password,
-				lastLoggedIn: new Date(Date.now())
+				password: values.password
 			});
 
 			useSonner.success('Fertig!', {

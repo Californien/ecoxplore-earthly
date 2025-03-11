@@ -60,7 +60,8 @@ html {
 	transition: all 0.35s;
 }
 
-.default-enter-from {
+.default-enter-from,
+.default-leave-to {
 	opacity: 0;
 	filter: blur(5px);
 	transform: scale(1.1);
@@ -70,4 +71,15 @@ html {
 	opacity: 0;
 	filter: blur(5px);
 	transform: scale(1.1);
+}
+
+// Layout Transitions
+
+.layout-enter-active,
+.layout-leave-active {
+	transition: all 0.4s;
+}
+.layout-enter-from,
+.layout-leave-to {
+	filter: grayscale(1);
 }

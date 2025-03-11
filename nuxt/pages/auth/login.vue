@@ -38,9 +38,9 @@
 			</form>
 			<p class="mt-8 text-sm">
 				<NuxtLink
-					class="font-semibold text-primary underline-offset-2 hover:underline"
-					to="/auth/forgot-password">
-					Passwort vergessen?
+					class="font-semibold text-primary underline-offset-2 hover:underline">
+					Passwort vergessen?&nbsp;&nbsp;
+					<UiBadge variant="destructive">Coming soon</UiBadge>
 				</NuxtLink>
 			</p>
 			<p class="mt-4 text-sm text-muted-foreground">
@@ -74,7 +74,8 @@
 			name: 'auth_next',
 			mode: 'out-in'
 		},
-		middleware: ['logged-in']
+		middleware: ['logged-in'],
+		layout: 'empty'
 	});
 
 	setLocale(de);

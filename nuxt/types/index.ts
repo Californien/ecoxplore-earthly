@@ -31,9 +31,6 @@ declare global {
 		provider: string;
 		confirmed: boolean;
 		blocked: boolean;
-		premium: boolean;
-		otp: string | null;
-		lastLoggedIn: Date | null;
 		createdAt: string;
 		updatedAt: string;
 	}

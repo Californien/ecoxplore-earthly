@@ -1,16 +1,13 @@
 <template>
 	<div>
-		<h3>Dashboard</h3>
+		<h1>Dashboard</h1>
 		<UiButton @click="logout">Logout</UiButton>
 	</div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 	useHead({
 		title: 'Earthly - Dashboard'
-	});
-	definePageMeta({
-		middleware: ['auth']
 	});
 
 	function logout() {
@@ -25,7 +22,8 @@
 		useSonner.promise(logoutPromise, {
 			loading: 'Ausloggen...',
 			success: (d: string) => d,
-			error: () => 'Ausloggen fehlgeschlagen!'
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			error: (d: unknown) => 'Ausloggen fehlgeschlagen!'
 		});
 	}
 </script>

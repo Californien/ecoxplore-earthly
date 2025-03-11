@@ -64,13 +64,6 @@
       "target": "plugin::users-permissions.role",
       "inversedBy": "users",
       "configurable": false
-    },
-    "lastLoggedIn": {
-      "type": "datetime"
-    },
-    "premium": {
-      "type": "boolean",
-      "default": false
     }
   }
 }
