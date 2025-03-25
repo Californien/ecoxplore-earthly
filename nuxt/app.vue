@@ -1,11 +1,11 @@
 <template>
 	<div>
 		<ConfigProvider :use-id="useIdFunction">
+			<NuxtLoadingIndicator />
 			<NuxtLayout>
-				<NuxtLoadingIndicator />
 				<NuxtPage />
-				<UiVueSonner />
 			</NuxtLayout>
+			<UiVueSonner />
 		</ConfigProvider>
 	</div>
 </template>

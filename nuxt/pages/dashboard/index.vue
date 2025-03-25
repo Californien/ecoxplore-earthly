@@ -1,7 +1,28 @@
 <template>
-	<div>
-		<h1>Dashboard</h1>
-		<UiButton @click="logout">Logout</UiButton>
+	<div class="content flex items-left justify-center flex-col">
+		<h2>Weekly Challenges</h2>
+		<UiGradientDivider class="divider" />
+		<div class="weekly-cards cards">
+			<ChallengeCard
+				name="Zwei gesunde Beine"
+				challenge="Beschreite 4 Strecken zu Fuß, anstatt mit dem Auto zu fahren."
+				:progress="1"
+				:progress-max="4" />
+			<ChallengeCard
+				name="Bio Einkauf"
+				challenge="Suche dir 10 Bio-Produkte als Alternative zu konventionellen Produkten aus und integriere sie in deine Einkaufsliste."
+				:progress="10"
+				:progress-max="10" />
+		</div>
+		<h2 class="mt-5">Daily Challenges</h2>
+		<UiGradientDivider class="divider" />
+		<div class="weekly-cards cards">
+			<ChallengeCard
+				name="Auspuff fett scheiße"
+				challenge="Beschreite 1 Strecken	 zu Fuß, anstatt mit dem Auto zu fahren."
+				:progress="0"
+				:progress-max="1" />
+		</div>
 	</div>
 </template>
 
@@ -9,21 +30,23 @@
 	useHead({
 		title: 'Earthly - Dashboard'
 	});
-
-	function logout() {
-		const { logout } = useStrapiAuth();
-		const router = useRouter();
-		const logoutPromise = () =>
-			new Promise<string>((resolve) => {
-				logout();
-				resolve('Du wurdest erfolgreich ausgeloggt!');
-				router.push('/auth/login');
-			});
-		useSonner.promise(logoutPromise, {
-			loading: 'Ausloggen...',
-			success: (d: string) => d,
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			error: (d: unknown) => 'Ausloggen fehlgeschlagen!'
-		});
-	}
 </script>
+
+<style lang="scss">
+	body {
+		overflow: scroll;
+	}
+	.content {
+		padding: 0.2rem 2rem;
+		h2 {
+			font-size: 1.2em;
+			font-weight: 600;
+		}
+		.cards {
+			margin-top: 16px;
+		}
+		.divider {
+			margin-top: 16px;
+		}
+	}
+</style>
