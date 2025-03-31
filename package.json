@@ -20,7 +20,7 @@
 		"i:nuxt": "cd nuxt && npm install",
 		"i:strapi": "cd strapi && npm install",
 		"i": "node ./scripts/i.js",
-		"lint": "cd nuxt && npx eslint src/**/*.{vue,ts,js}",
+		"lint": "cd nuxt && npx eslint ./**/*.{vue,ts,js}",
 		"preview": "concurrently -n STRAPI,NUXT -c cyan,magenta \"node strapi/server.js\" \"node nuxt/main.js\"",
 		"setup": "npm i && node scripts/setup.js",
 		"test": "cd nuxt && npm run test"
