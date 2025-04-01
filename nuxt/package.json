@@ -24,6 +24,7 @@
 		"@vee-validate/nuxt": "^4.15.0",
 		"@vee-validate/yup": "^4.15.0",
 		"@vueuse/nuxt": "^12.5.0",
+		"@zxing/library": "^0.21.3",
 		"axios": "^1.7.9",
 		"nuxt": "^3.6.0",
 		"radix-vue": "^1.9.13",
