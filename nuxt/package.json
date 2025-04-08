@@ -13,6 +13,7 @@
 		"coverage": "vitest --coverage"
 	},
 	"dependencies": {
+		"@ericblade/quagga2": "^1.8.4",
 		"@hookform/resolvers": "^4.0.0",
 		"@morev/vue-transitions": "^3.0.5",
 		"@nuxt/fonts": "^0.0.1",
@@ -24,8 +25,8 @@
 		"@vee-validate/nuxt": "^4.15.0",
 		"@vee-validate/yup": "^4.15.0",
 		"@vueuse/nuxt": "^12.5.0",
-		"@zxing/library": "^0.21.3",
 		"axios": "^1.7.9",
+		"gsap": "^3.12.7",
 		"nuxt": "^3.6.0",
 		"radix-vue": "^1.9.13",
 		"sass": "^1.80.5",

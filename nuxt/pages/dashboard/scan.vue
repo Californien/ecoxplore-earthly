@@ -61,18 +61,106 @@
 				<Icon name="lucide:video-off" />
 				<span>Keine Kamera verfügbar</span>
 			</div>
-			<video id="selected_camera_viewport" autoplay playsinline></video>
+			<video
+				id="selected_camera_viewport"
+				autoplay
+				playsinline
+				muted></video>
+			<canvas
+				v-show="isFrozen"
+				id="canvas"
+				ref="canvasRef"
+				:class="{
+					'opacity-100': isFrozen,
+					'opacity-0': !isFrozen
+				}"></canvas>
 			<div
 				v-if="streaming"
 				class="viewport-overlay flex flex-row items-center justify-center">
 				<UiButton
-					:disabled="isScanning"
+					:loading="isScanning"
+					:disabled="!selectedCamera"
 					variant="ringHover"
 					class="btn rounded-full"
 					size="icon"
 					@click="scanBarcode">
-					<Icon name="lucide:scan-line" class="size-4" />
+					<Icon
+						v-if="!isScanning"
+						name="lucide:scan-line"
+						class="size-4" />
 				</UiButton>
+				<div class="scan-area">
+					<div ref="contentSimulation" class="content-simulation">
+						<div ref="indicator" class="indicator"></div>
+					</div>
+					<div ref="plusIcon" class="plus-icon">
+						<Icon name="lucide:plus" />
+					</div>
+					<div ref="cornerTL" class="corner t tl">
+						<svg
+							width="32"
+							height="32"
+							viewBox="0 0 32 32"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg">
+							<path
+								d="M8 20 V12 C8 10 10 8 12 8 H20"
+								stroke="white"
+								stroke-width="4"
+								fill="none"
+								stroke-linecap="round"
+								stroke-linejoin="round" />
+						</svg>
+					</div>
+					<div ref="cornerTR" class="corner t tr">
+						<svg
+							width="32"
+							height="32"
+							viewBox="0 0 32 32"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg">
+							<path
+								d="M8 20 V12 C8 10 10 8 12 8 H20"
+								stroke="white"
+								stroke-width="4"
+								fill="none"
+								stroke-linecap="round"
+								stroke-linejoin="round" />
+						</svg>
+					</div>
+					<div ref="cornerBL" class="corner b bl">
+						<svg
+							width="32"
+							height="32"
+							viewBox="0 0 32 32"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg">
+							<path
+								d="M8 20 V12 C8 10 10 8 12 8 H20"
+								stroke="white"
+								stroke-width="4"
+								fill="none"
+								stroke-linecap="round"
+								stroke-linejoin="round" />
+						</svg>
+					</div>
+					<div ref="cornerBR" class="corner b br">
+						<svg
+							width="32"
+							height="32"
+							viewBox="0 0 32 32"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg">
+							<path
+								d="M8 20 V12 C8 10 10 8 12 8 H20"
+								stroke="white"
+								stroke-width="4"
+								fill="none"
+								stroke-linecap="round"
+								stroke-linejoin="round" />
+						</svg>
+					</div>
+				</div>
 			</div>
 			<p>📦 Produkt-ID: {{ scannedCode }}</p>
 		</div>
@@ -80,23 +168,26 @@
 </template>
 
 <script lang="ts" setup>
-	import {
-		MultiFormatReader,
-		BarcodeFormat,
-		DecodeHintType,
-		RGBLuminanceSource,
-		BinaryBitmap,
-		HybridBinarizer
-	} from '@zxing/library';
+	import { gsap } from 'gsap';
+	import Quagga from '@ericblade/quagga2';
 
 	const placement = ref('default');
 	const cams = ref<MediaDeviceInfo[]>([]);
 	const permissionStatus = ref('');
 	const selectedCamera = ref('');
 	const scannedCode = ref('');
+	const isFrozen = ref(false);
 	const isScanning = ref(false);
-	let streaming = ref<boolean>(false);
-	let videoElement: HTMLVideoElement | null = null;
+	const streaming = ref<boolean>(false);
+	const scanTimeout = ref<NodeJS.Timeout | null>(null);
+	const canvasRef = ref<HTMLCanvasElement | null>(null);
+	const contentSimulation = ref<HTMLDivElement | null>(null);
+	const indicator = ref<HTMLDivElement | null>(null);
+	const plusIcon = ref<HTMLDivElement | null>(null);
+	const cornerTL = ref<HTMLDivElement | null>(null);
+	const cornerTR = ref<HTMLDivElement | null>(null);
+	const cornerBL = ref<HTMLDivElement | null>(null);
+	const cornerBR = ref<HTMLDivElement | null>(null);
 
 	async function getCameras() {
 		try {
@@ -188,52 +279,154 @@
 		startCameraStream(deviceId);
 	}
 
+	function resetScan() {
+		isScanning.value = false;
+		isFrozen.value = false;
+		if (scanTimeout.value) clearTimeout(scanTimeout.value);
+	}
+
 	async function scanBarcode() {
-		console.log('Scanning barcode...');
-		if (!videoElement) return;
+		if (isScanning.value) return;
 		isScanning.value = true;
+		scannedCode.value = '';
+		triggerScanAnimation();
+		// 🎯 Standbild erzeugen
+		const video = document.getElementById(
+			'selected_camera_viewport'
+		) as HTMLVideoElement;
+		const canvas = canvasRef.value;
 
-		try {
-			const reader = new MultiFormatReader();
-			const hints = new Map();
-			hints.set(DecodeHintType.POSSIBLE_FORMATS, [
-				BarcodeFormat.QR_CODE,
-				BarcodeFormat.DATA_MATRIX
-			]);
-			reader.setHints(hints);
-			console.log('Barcode reader initialized');
-			const canvas = document.createElement('canvas');
+		if (video && canvas) {
 			const ctx = canvas.getContext('2d');
-
 			if (ctx) {
-				canvas.width = videoElement.videoWidth;
-				canvas.height = videoElement.videoHeight;
-				ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-				const imageData = ctx.getImageData(
-					0,
-					0,
-					canvas.width,
-					canvas.height
-				);
-				console.log('Image data captured');
-				const luminanceSource = new RGBLuminanceSource(
-					imageData.data,
-					canvas.width,
-					canvas.height
-				);
-				const binaryBitmap = new BinaryBitmap(
-					new HybridBinarizer(luminanceSource)
-				);
-				const result = reader.decode(binaryBitmap);
-				console.log('Barcode decoded:', result);
-				scannedCode.value = result.getText();
+				canvas.width = video.videoWidth;
+				canvas.height = video.videoHeight;
+				ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+				isFrozen.value = true;
 			}
-		} catch (error) {
-			console.error('Kein Barcode gefunden:', error);
-		} finally {
-			console.log('Scan abgeschlossen');
-			isScanning.value = false;
 		}
+
+		// 1,5 Sekunden warten, bevor der Scan startet
+		await new Promise((resolve) => setTimeout(resolve, 1500));
+
+		// Timer: Kein Barcode gefunden
+		scanTimeout.value = setTimeout(() => {
+			if (isScanning.value) {
+				scannedCode.value = 'Kein Barcode gefunden';
+				console.log('→ Kein Barcode gefunden.');
+				resetScan();
+			}
+		}, 2000); // Hier kann der Timeout nach Bedarf angepasst werden
+
+		// Barcode scannen
+		Quagga.decodeSingle(
+			{
+				src: canvasRef.value!.toDataURL('image/png'), // das Standbild als DataURL
+				numOfWorkers: 0, // wichtig für Browserkompatibilität bei decodeSingle
+				locator: {
+					patchSize: 'medium',
+					halfSample: true
+				},
+				decoder: {
+					readers: ['ean_reader']
+				},
+				locate: true
+			},
+			(result) => {
+				if (result && result.codeResult) {
+					console.log(
+						'Barcode erkannt (Standbild):',
+						result.codeResult.code
+					);
+					scannedCode.value = result.codeResult.code || '';
+				} else {
+					console.log('→ Kein Barcode im Standbild gefunden.');
+					scannedCode.value = 'Kein Barcode gefunden';
+				}
+				resetScan();
+			}
+		);
+	}
+
+	function triggerScanAnimation() {
+		gsap.to(contentSimulation.value, {
+			duration: 0.3,
+			opacity: 1,
+			ease: 'power2.out'
+		});
+		setTimeout(() => {
+			gsap.to(indicator.value, {
+				duration: 0.2,
+				opacity: 1,
+				ease: 'power2.out'
+			});
+			gsap.to(cornerTL.value, {
+				duration: 0.25,
+				transform: 'translate(-4px, -4px)',
+				ease: 'power1.inOut'
+			});
+			gsap.to(cornerTR.value, {
+				duration: 0.25,
+				transform: 'translate(4px, -4px)',
+				ease: 'power1.inOut'
+			});
+			gsap.to(cornerBL.value, {
+				duration: 0.25,
+				transform: 'translate(-4px, 4px)',
+				ease: 'power1.inOut'
+			});
+			gsap.to(cornerBR.value, {
+				duration: 0.25,
+				transform: 'translate(4px, 4px)',
+				ease: 'power1.inOut'
+			});
+			gsap.to(indicator.value, {
+				duration: 0.5,
+				left: '100%',
+				ease: 'power1.inOut'
+			});
+			gsap.to(indicator.value, {
+				duration: 0.4,
+				opacity: 0,
+				ease: 'power2.out',
+				delay: 0.2
+			});
+			gsap.to(cornerTL.value, {
+				duration: 0.25,
+				transform: 'translate(0px, 0px)',
+				ease: 'power1.inOut',
+				delay: 0.35
+			});
+			gsap.to(cornerTR.value, {
+				duration: 0.25,
+				transform: 'translate(0px, 0px)',
+				ease: 'power1.inOut',
+				delay: 0.35
+			});
+			gsap.to(cornerBL.value, {
+				duration: 0.25,
+				transform: 'translate(0px, 0px)',
+				ease: 'power1.inOut',
+				delay: 0.35
+			});
+			gsap.to(cornerBR.value, {
+				duration: 0.25,
+				transform: 'translate(0px, 0px)',
+				ease: 'power1.inOut',
+				delay: 0.35
+			});
+			gsap.to(indicator.value, {
+				duration: 0,
+				left: '0%'
+			});
+		}, 500);
+		setTimeout(() => {
+			gsap.to(contentSimulation.value, {
+				duration: 0.5,
+				opacity: 0,
+				ease: 'power2.out'
+			});
+		}, 900);
 	}
 
 	watch(permissionStatus, (newStatus) => {
@@ -312,10 +505,101 @@
 				border-radius: 16px;
 				object-fit: cover;
 			}
+			canvas {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				border-radius: 16px;
+				transition: opacity 0.3s;
+			}
 			.viewport-overlay {
 				position: absolute;
-				top: 8px;
-				left: 8px;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				border-radius: inherit;
+				.btn {
+					position: absolute;
+					top: 8px;
+					left: 8px;
+				}
+				.scan-area {
+					position: relative;
+					width: 85%;
+					height: 20%;
+					.corner {
+						position: absolute;
+						width: 32px;
+						aspect-ratio: 1 / 1;
+						&.tl {
+							top: 0;
+							left: 0;
+							svg {
+								transform: rotate(0deg);
+							}
+						}
+						&.tr {
+							top: 0;
+							right: 0;
+							svg {
+								transform: rotate(90deg);
+							}
+						}
+						&.br {
+							bottom: 0;
+							right: 0;
+							svg {
+								transform: rotate(180deg);
+							}
+						}
+						&.bl {
+							bottom: 0;
+							left: 0;
+							svg {
+								transform: rotate(270deg);
+							}
+						}
+					}
+					.plus-icon {
+						position: absolute;
+						top: 50%;
+						left: 50%;
+						transform: translate(-50%, -50%);
+						width: 32px;
+						height: 32px;
+						display: grid;
+						place-items: center;
+						svg {
+							width: 100%;
+							height: 100%;
+							color: white;
+						}
+					}
+					.content-simulation {
+						position: relative;
+						top: 50%;
+						left: 50%;
+						transform: translate(-50%, -50%);
+						width: 92.5%;
+						height: 80%;
+						background-color: rgba(255, 255, 255, 0.025);
+						border-radius: 6px;
+						opacity: 0;
+						overflow: hidden;
+						.indicator {
+							position: absolute;
+							top: 0;
+							left: 0%;
+							width: 4px;
+							height: 100%;
+							background-color: white;
+							opacity: 0;
+						}
+					}
+				}
 			}
 		}
 	}
