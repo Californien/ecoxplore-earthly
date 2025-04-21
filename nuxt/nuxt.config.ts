@@ -12,13 +12,13 @@ export default defineNuxtConfig({
 	css: ['./assets/scss/main.scss'],
 
 	tailwindcss: {
-		exposeConfig: true,
-		editorSupport: true
-	},
+        exposeConfig: true,
+        editorSupport: true
+    },
 
 	colorMode: {
-		classSuffix: ''
-	},
+        classSuffix: ""
+    },
 
 	imports: {
 		imports: [

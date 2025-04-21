@@ -17,18 +17,18 @@
 		"@hookform/resolvers": "^4.0.0",
 		"@morev/vue-transitions": "^3.0.5",
 		"@nuxt/fonts": "^0.0.1",
-		"@nuxt/icon": "^1.10.3",
+		"@nuxt/icon": "^1.12.0",
 		"@nuxtjs/color-mode": "^3.5.2",
 		"@nuxtjs/strapi": "1.12.0",
-		"@nuxtjs/tailwindcss": "^6.13.1",
+		"@nuxtjs/tailwindcss": "^6.13.2",
 		"@tailwindcss/forms": "^0.5.10",
 		"@vee-validate/nuxt": "^4.15.0",
 		"@vee-validate/yup": "^4.15.0",
-		"@vueuse/nuxt": "^12.5.0",
+		"@vueuse/nuxt": "^12.8.2",
 		"axios": "^1.7.9",
 		"gsap": "^3.12.7",
 		"nuxt": "^3.16.2",
-		"radix-vue": "^1.9.13",
+		"radix-vue": "^1.9.17",
 		"sass": "^1.80.5",
 		"tailwind-variants": "^0.3.1",
 		"tailwindcss-animate": "^1.0.7",
@@ -49,8 +49,8 @@
 		"@vueuse/core": "^12.8.2",
 		"eslint": "^9.14.0",
 		"globals": "^15.11.0",
-		"prettier": "^3.5.0",
+		"prettier": "^3.5.3",
 		"prettier-plugin-tailwindcss": "^0.6.11",
-		"typescript": "^5.7.3"
+		"typescript": "^5.8.3"
 	}
 }
