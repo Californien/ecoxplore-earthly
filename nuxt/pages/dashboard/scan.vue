@@ -11,7 +11,7 @@
 						<Icon name="lucide:video" class="size-4" />
 					</UiButton>
 				</UiDropdownMenuTrigger>
-				<UiDropdownMenuContent class="w-48 dropdown-menu-content">
+				<UiDropdownMenuContent class="w-48">
 					<UiDropdownMenuLabel label="Kamera auswählen" />
 					<UiDropdownMenuSeparator />
 					<UiDropdownMenuRadioGroup v-model="placement">
@@ -162,7 +162,12 @@
 					</div>
 				</div>
 			</div>
-			<p>📦 Produkt-ID: {{ scannedCode }}</p>
+			<div ref="resultOverlay" class="result-overlay">
+				<ScanResultOverlayContent
+					:api-response="response"
+					:parent-div="resultOverlay" />
+			</div>
+			<!-- <p>📦 Produkt-ID: {{ scannedCode }}</p> -->
 		</div>
 	</div>
 </template>
@@ -188,6 +193,8 @@
 	const cornerTR = ref<HTMLDivElement | null>(null);
 	const cornerBL = ref<HTMLDivElement | null>(null);
 	const cornerBR = ref<HTMLDivElement | null>(null);
+	const resultOverlay = ref<HTMLDivElement | null>(null);
+	const response = ref<OpenFoodFactsProduct>({} as OpenFoodFactsProduct);
 
 	async function getCameras() {
 		try {
@@ -221,8 +228,14 @@
 			// Falls die Berechtigung "prompt" ist → Nutzer fragen
 			else if (permissionStatus.value === 'prompt') {
 				try {
+					useSonner.info(
+						'Bitte erlaube Earthly den Zugriff auf deine Kamera.'
+					);
 					await navigator.mediaDevices.getUserMedia({ video: true });
 					permissionStatus.value = 'granted';
+					useSonner.success(
+						'Kamera Zugriff erlaubt! Du kannst jetzt scannen.'
+					);
 					await getCameras();
 					// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				} catch (err) {
@@ -230,6 +243,9 @@
 						'User hat Kamera-Zugriff verweigert oder Fehler ist aufgetreten.'
 					);
 					permissionStatus.value = 'denied';
+					useSonner.warning(
+						'Kamera Zugriff verweigert. Bitte erteile Earthly diese Berechtigung.'
+					);
 				}
 			}
 
@@ -283,6 +299,18 @@
 		isScanning.value = false;
 		isFrozen.value = false;
 		if (scanTimeout.value) clearTimeout(scanTimeout.value);
+	}
+
+	function createControlledPromise<T = string>() {
+		let resolve!: (value: T) => void;
+		let reject!: (reason?: unknown) => void;
+
+		const promise = new Promise<T>((res, rej) => {
+			resolve = res;
+			reject = rej;
+		});
+
+		return { promise, resolve, reject };
 	}
 
 	async function scanBarcode() {
@@ -339,9 +367,21 @@
 						result.codeResult.code
 					);
 					scannedCode.value = result.codeResult.code || '';
+					const { promise, resolve, reject } =
+						createControlledPromise<string>();
+					useSonner.promise(promise, {
+						loading: 'Barcode gescannt, Produkt wird geladen...',
+						success: (d: unknown) => d,
+						error: (d: unknown) => d
+					});
+					triggerResult(result.codeResult.code, resolve, reject);
 				} else {
 					console.log('→ Kein Barcode im Standbild gefunden.');
 					scannedCode.value = 'Kein Barcode gefunden';
+					useSonner.error('Kein Barcode erkannt.', {
+						description:
+							'Achte auf eine gute Erkennbarkeit des Barcodes.'
+					});
 				}
 				resetScan();
 			}
@@ -429,6 +469,38 @@
 		}, 900);
 	}
 
+	async function triggerResult(
+		barcode: string | null,
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		resolve: any,
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		reject: any
+	) {
+		if (!barcode) {
+			useSonner.error('Ein unerwarteter Fehler ist aufgetreten');
+		}
+
+		const data = await $fetch<OpenFoodFactsProduct>(
+			`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`
+		);
+		response.value = data as OpenFoodFactsProduct;
+		console.log(response.value);
+		gsap.to(resultOverlay.value, {
+			duration: 1,
+			opacity: 1,
+			backdropFilter: 'blur(20px)',
+			transform: 'translateY(0%)',
+			ease: 'power2.out'
+		});
+		if (data.status_verbose === 'product not found') {
+			reject('Produkt nicht gefunden');
+		} else if (data.status_verbose === 'product found') {
+			resolve('Produkt gefunden!');
+		} else {
+			reject('Ein unerwarteter Fehler ist aufgetreten');
+		}
+	}
+
 	watch(permissionStatus, (newStatus) => {
 		if (newStatus === 'granted') {
 			getCameras();
@@ -460,6 +532,7 @@
 			aspect-ratio: 9 / 16;
 			background-color: rgba(255, 255, 255, 0.01);
 			border-radius: 16px;
+			overflow: hidden;
 			.warning {
 				opacity: 0;
 				animation: fade-in 0.5s ease-in-out forwards;
@@ -513,6 +586,22 @@
 				height: 100%;
 				border-radius: 16px;
 				transition: opacity 0.3s;
+			}
+			.result-overlay {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				border-radius: inherit;
+				background-color: rgba(0, 0, 0, 0.5);
+				transform: translateY(
+					0%
+				); // to: translateY(0%); | from: translateY(100%);
+				opacity: 1; // to: opacity: 1; | from: opacity: 0;
+				backdrop-filter: blur(
+					20px
+				); // to: blur(20px); | from: blur(0px);
 			}
 			.viewport-overlay {
 				position: absolute;

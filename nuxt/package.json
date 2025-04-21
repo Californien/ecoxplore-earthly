@@ -27,7 +27,7 @@
 		"@vueuse/nuxt": "^12.5.0",
 		"axios": "^1.7.9",
 		"gsap": "^3.12.7",
-		"nuxt": "^3.6.0",
+		"nuxt": "^3.16.2",
 		"radix-vue": "^1.9.13",
 		"sass": "^1.80.5",
 		"tailwind-variants": "^0.3.1",
