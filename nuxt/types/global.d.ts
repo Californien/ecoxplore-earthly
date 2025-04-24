@@ -609,6 +609,7 @@ declare global {
 			popularity_tags: string[];
 			producer_version_id: string;
 			producer_version_id_imported: string;
+			product: object;
 			product_name: string;
 			product_name_de: string;
 			product_name_en: string;

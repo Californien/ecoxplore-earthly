@@ -10,178 +10,127 @@
 			</UiButton>
 		</div>
 		<div v-else class="content">
-			<UiScrollArea>
+			<UiScrollArea class="content-scroll-area">
 				<div class="title">
 					<p>Ergebnisse für:</p>
 					<h1>
-						{{ props.apiResponse.product.abbreviated_product_name }}
+						{{ pr.abbreviated_product_name }}
 					</h1>
 					<h2>{{ props.apiResponse.code }}</h2>
 				</div>
 
-				<div class="ecoscore-grade">
-					<UiTimeline
-						:model-value="
-							scoreToId(props.apiResponse.product.ecoscore_grade)
-						"
-						orientation="horizontal">
-						<UiTimelineItem
-							v-for="item in items"
-							:key="item.id"
-							:step="item.id">
-							<UiTimelineHeader>
-								<UiTimelineSeparator />
-								<UiTimelineTitle>
-									{{ item.title }}
-								</UiTimelineTitle>
-								<UiTimelineIndicator />
-							</UiTimelineHeader>
-						</UiTimelineItem>
-					</UiTimeline>
+				<h1 class="divider-title">Übersicht</h1>
+				<UiDivider icon="lucide:table-of-contents" class="divider" />
+
+				<div class="ecoscore-data ecoscore-grade">
+					<div v-if="ecoscore_id > 0" class="data">
+						<div class="title">
+							<span>EcoScore Grade:</span>
+							<Icon
+								v-if="items[ecoscore_id - 1].warning"
+								name="lucide:triangle-alert" />
+						</div>
+						<UiTimeline
+							:model-value="ecoscore_id"
+							class="ecoscore-grade-timeline"
+							orientation="horizontal">
+							<UiTimelineItem
+								v-for="item in items"
+								:key="item.id"
+								:step="item.id">
+								<UiTimelineHeader>
+									<UiTimelineSeparator />
+									<UiTimelineTitle
+										v-if="ecoscore_id === item.id"
+										class="font-extrabold">
+										{{ item.title }}
+									</UiTimelineTitle>
+									<UiTimelineTitle v-else class="font-thin">
+										{{ item.title }}
+									</UiTimelineTitle>
+									<UiTimelineIndicator />
+								</UiTimelineHeader>
+							</UiTimelineItem>
+						</UiTimeline>
+						<div
+							class="ecoscore-score mx-auto flex w-full max-w-sm flex-col gap-2">
+							<div class="flex justify-between text-sm">
+								<span>Score</span>
+								<span class="text-muted-foreground">
+									{{
+										props.apiResponse.product.ecoscore_score
+									}}
+									/ 100
+								</span>
+							</div>
+							<UiProgress
+								v-model="
+									props.apiResponse.product.ecoscore_score
+								"
+								:style="{
+									'--color-var': items[ecoscore_id - 1].color
+								}"
+								class="[&>div]:bg-[var(--color-var)]" />
+						</div>
+						<p
+							class="description"
+							:style="{
+								color: items[ecoscore_id - 1].color
+							}">
+							{{ items[ecoscore_id - 1].description }}
+						</p>
+					</div>
+					<div v-else class="na">
+						<span class="title">EcoScore Grade:</span>
+						<p v-if="ecoscore_id === -1" class="description">
+							EcoScore nicht auf dieses Produkt anwendbar.
+						</p>
+						<p v-else class="description">
+							EcoScore ist noch nicht für dieses Produkt verfügbar
+							oder kann momentan nicht korrekt abgerufen werden.
+						</p>
+					</div>
 				</div>
-				<p>
-					Lorem ipsum dolor sit amet consectetur adipisicing elit.
-					Laboriosam est voluptatum officia vero error asperiores
-					earum. In itaque ipsa quam a, tenetur aspernatur sed eaque
-					eveniet et iusto, eos voluptates sunt amet commodi, tempore
-					sapiente? Vel dolorem facilis voluptates quibusdam
-					temporibus doloribus. Ut voluptatibus sint neque dolorum rem
-					aperiam deleniti modi facilis cupiditate odit nobis sunt eum
-					quibusdam laudantium, libero officia, qui corrupti incidunt,
-					ipsa unde officiis ducimus blanditiis beatae cumque. Optio
-					quos accusamus corrupti dolorem repellat quisquam, ea
-					temporibus eius quasi nisi suscipit culpa quaerat
-					voluptatibus consectetur laudantium iure deserunt quam
-					error, impedit eaque tempora. Incidunt vitae officiis
-					inventore, quo, iste quasi molestias fugiat deleniti vel
-					quidem amet saepe autem. Eum fugiat facilis sapiente
-					perspiciatis in, quasi nisi at? Maxime magni quaerat sunt
-					iusto eveniet fugit voluptas ut aliquam accusantium
-					consectetur obcaecati, tempore quis, culpa cum reprehenderit
-					quidem blanditiis laboriosam? Error neque dolorem ipsam iste
-					magnam accusamus tempore minima iusto nostrum? Debitis
-					similique provident hic enim architecto corrupti perferendis
-					vitae omnis dolore, doloribus unde aliquam, magnam
-					cupiditate reprehenderit adipisci aperiam sapiente nesciunt
-					molestias ea? Deleniti mollitia autem quibusdam ducimus
-					animi voluptates labore aut maiores eligendi aperiam,
-					tempora dicta, dolorem cumque vitae quo consequatur rerum.
-					Deleniti, eligendi voluptates commodi fugiat illum
-					laudantium reiciendis, tempora aperiam accusamus minima eum
-					odit. Corporis natus aliquid provident quas? Rerum
-					asperiores provident accusantium! Vero nesciunt ut fugiat
-					error illum, beatae, cum iste id nihil maxime autem. Modi,
-					odio repellendus. Aut architecto nulla eaque, labore
-					provident, soluta accusantium enim veritatis, nihil nam
-					necessitatibus aspernatur odio quas adipisci amet? Vel
-					placeat omnis, ipsa dolor, ipsam earum commodi aliquam sunt
-					exercitationem quo necessitatibus delectus laboriosam! Velit
-					iure quam laborum. Soluta accusamus unde cupiditate
-					deserunt! Sed id qui in rem, ab cupiditate exercitationem,
-					officiis provident delectus similique velit. Autem quis
-					rerum velit? Dolor voluptatem dolorem possimus voluptatibus
-					fugiat est accusamus ipsa. Optio minus doloremque non
-					blanditiis, sed illo nulla commodi dolorem quam perspiciatis
-					aut. Minus quidem doloremque possimus necessitatibus
-					explicabo, voluptas, eos nemo iusto asperiores vero fugiat
-					natus corporis placeat debitis odio voluptatum quo
-					praesentium illum dolorem mollitia et ipsum quasi. Eaque cum
-					similique blanditiis ad fuga adipisci, iste laborum mollitia
-					quis aliquid eos, quae voluptatem eius odio exercitationem
-					sapiente ducimus illum vero, vitae accusantium suscipit hic
-					temporibus laboriosam? Nesciunt rerum quos, voluptate
-					molestias, mollitia impedit esse veniam autem nisi assumenda
-					commodi earum quasi modi corporis quisquam nihil quam.
-					Nostrum assumenda officia eos unde quo modi, maiores nisi
-					quas praesentium, fuga repellat iure quam laboriosam omnis
-					autem dicta quaerat id voluptas porro perferendis possimus
-					et! Culpa vitae quidem reiciendis. Possimus exercitationem
-					quos autem modi, ut eveniet, ipsa illum illo obcaecati
-					accusamus delectus, tenetur voluptatum nisi. Ducimus esse
-					aperiam commodi nostrum eligendi similique laborum ipsum
-					debitis neque atque doloremque, quibusdam ea nemo aliquid
-					molestiae magni asperiores soluta ullam dolor quidem
-					quaerat. In velit totam consequatur ducimus architecto
-					dolores culpa voluptas iure dolor repellendus id fugiat
-					deserunt, natus magni, excepturi facere, quod neque laborum
-					nisi facilis! Voluptatum cumque magnam odit accusantium id
-					consequuntur, quia tenetur neque? Veritatis ipsam libero,
-					autem, blanditiis nam accusantium omnis ullam natus delectus
-					fugiat laborum suscipit odio possimus soluta! Quis, deserunt
-					excepturi, enim, dolorum voluptas libero nihil sit iure
-					perspiciatis possimus modi ipsa facere eos ipsum velit
-					pariatur tempore sunt. Quam labore pariatur perspiciatis,
-					repudiandae omnis odit. Aliquam doloremque maxime porro
-					earum unde culpa omnis voluptas mollitia nesciunt quaerat
-					harum repellendus et iure expedita nam officia repellat at
-					necessitatibus, minima nihil asperiores sit! Ipsum pariatur
-					voluptate, corrupti saepe illo laudantium qui voluptatibus
-					ex autem, deleniti adipisci. Atque ipsum alias quaerat
-					asperiores. Magnam expedita natus, voluptatum nisi officia
-					similique animi eveniet architecto voluptatibus vitae
-					dolorum illum dolor doloribus corrupti accusamus impedit
-					consequuntur nulla id. Corrupti eligendi labore magni illum
-					quos fuga inventore assumenda veritatis sapiente, deserunt
-					provident sed velit porro beatae odio. Reprehenderit
-					consequuntur libero, sed numquam fugit dolorum saepe,
-					aspernatur a repudiandae similique quis hic quae excepturi
-					blanditiis, veniam sequi reiciendis assumenda corporis dolor
-					earum sit! Quo animi, suscipit cupiditate est ipsum in
-					obcaecati, illo laudantium modi saepe optio corporis
-					impedit, neque rerum facilis cum consequuntur ut.
-					Doloremque, vero ipsam! Repudiandae perferendis labore sunt
-					voluptate tempore sequi voluptas consequatur fugiat optio,
-					eum aliquid reprehenderit deserunt laboriosam, veritatis
-					deleniti numquam dolores unde nobis vitae fuga, aut nemo
-					aperiam maxime. Laboriosam facilis quo mollitia doloribus
-					necessitatibus, molestiae, neque aliquam quia rerum dicta
-					odit maxime unde eveniet eius quos. Vitae, consequatur.
-					Veritatis optio suscipit quasi, doloremque, ad veniam fuga
-					nihil alias id deserunt, voluptatum odio et sit. Facere ipsa
-					amet provident voluptatem alias. Eius doloribus quae
-					maiores. Optio, corporis impedit! Eligendi mollitia
-					necessitatibus tempora sequi alias qui ipsa inventore,
-					voluptas obcaecati, optio neque, dolore vel assumenda nobis
-					porro commodi! Vero reprehenderit porro, consectetur sunt
-					eligendi mollitia nemo velit, modi, aliquam fugiat unde.
-					Rerum non perferendis reprehenderit iusto deleniti,
-					molestiae perspiciatis iste esse assumenda at voluptatem.
-					Dolores, veniam aliquam pariatur quo obcaecati eius
-					consequuntur, ut aspernatur quae error delectus eveniet
-					totam sit laudantium minima debitis minus sunt repudiandae
-					repellat recusandae in deleniti aperiam, corporis cumque!
-					Aperiam beatae aut ipsa, dolores ipsam doloremque, itaque
-					eveniet omnis dolore hic vitae officia neque consequatur
-					iure distinctio corporis rem at? Vitae eligendi animi
-					ducimus, omnis doloribus ipsum soluta repellat distinctio
-					incidunt rem, minus corporis veniam voluptatem sapiente
-					quibusdam ut placeat quis aspernatur ab eaque! Perferendis
-					omnis nihil iure quisquam suscipit, tempore corporis
-					molestiae quo atque assumenda ipsa, eos excepturi modi
-					recusandae dignissimos reprehenderit velit exercitationem
-					similique consequatur dolorem aut aperiam quis consequuntur?
-					Facilis, aliquid commodi sint ab quas nulla voluptatem
-					illum, ut voluptatibus vitae aspernatur provident possimus
-					minus sed, sit maiores animi nostrum distinctio laudantium
-					veniam rem praesentium excepturi quae odit! Quos nisi
-					voluptate suscipit iusto reprehenderit laudantium labore
-					fugiat consequuntur accusamus, voluptatum tenetur quae
-					veritatis quidem, rerum, vitae odit? Illo repellendus
-					reiciendis sint animi error aperiam asperiores. Quam,
-					nostrum. Sunt, blanditiis itaque labore necessitatibus ipsam
-					aut nisi hic pariatur nesciunt consequatur quaerat
-					veritatis, officia deleniti voluptatum maiores reprehenderit
-					tempora quos, iste odio voluptas voluptate doloribus.
-					Ducimus, ex qui temporibus dicta in vitae natus inventore.
-					Nisi ipsum sint doloribus. Sint molestiae nostrum quisquam
-					repudiandae temporibus.
-				</p>
-				<div class="continue-button">
-					<UiButton variant="gooeyRight" @click="overlayFadeOut">
-						Weiter scannen
-					</UiButton>
+
+				<h1 class="divider-title">Detaillierte Umweltdaten</h1>
+				<UiDivider icon="lucide:trees" class="divider" />
+
+				<div class="ecoscore-data carbon-footprint">
+					<div
+						v-if="pr.ecoscore_data.agribalyse.co2_total"
+						class="data">
+						<!-- prettier-ignore -->
+						<span class="title">
+							Entspricht einer Fahrt von ca. {{ Number(petrol_car_equivalent.toFixed(3)) }}km mit einem Benzin-Auto.
+						</span>
+						<!-- prettier-ignore -->
+						<span class="details">
+							{{ Number((co2_total_kg * 100).toFixed(1)) }}g CO<sub>2</sub>e pro 100g Produkt
+						</span>
+					</div>
+					<div v-else class="na">
+						<!-- prettier-ignore -->
+						<span class="title">
+							CO<sub>2</sub>-Billanz:
+						</span>
+						<!-- prettier-ignore -->
+						<p class="description">
+							Daten zur CO<sub>2</sub>-Billanz sind entweder noch nicht für dieses Produkt
+							verfügbar oder können momentan nicht korrekt
+							abgerufen werden.
+						</p>
+					</div>
 				</div>
+				<div class="ecoscore-data packaging-impact"></div>
+				<div class="ecoscore-data ingredients-origins"></div>
+				<div class="ecoscore-data threatened-species"></div>
+				<div class="ecoscore-data production-system"></div>
 			</UiScrollArea>
+			<div class="continue-button">
+				<UiButton variant="gooeyRight" @click="overlayFadeOut">
+					Weiter scannen
+				</UiButton>
+			</div>
 		</div>
 	</div>
 </template>
@@ -5708,6 +5657,7 @@
 	};
 
 	const parentDiv = ref(props.parentDiv);
+	const pr = props.apiResponse.product;
 
 	function overlayFadeOut() {
 		gsap.to(parentDiv.value, {
@@ -5721,7 +5671,7 @@
 	}
 
 	// EcoScore letter to id
-	function scoreToId(letter: string) {
+	function scoreToId(letter: string): number {
 		switch (letter) {
 			case 'a':
 				return 1;
@@ -5735,8 +5685,16 @@
 				return 5;
 			case 'f':
 				return 6;
+			case 'unknown':
+				return 0;
+			case 'not-applicable':
+				return -1;
+			default:
+				return 0;
 		}
 	}
+
+	const ecoscore_id: number = scoreToId(pr.ecoscore_grade);
 
 	// EcoScore items
 	const items = [
@@ -5744,39 +5702,56 @@
 			id: 1,
 			date: '',
 			title: 'A',
-			description: 'Sehr geringe Umweltbelastung.'
+			description: 'Sehr geringe Umweltbelastung.',
+			color: '#5cf59b',
+			warning: false
 		},
 		{
 			id: 2,
 			date: '',
 			title: 'B',
-			description: 'Geringe Umweltbelastung.'
+			description: 'Geringe Umweltbelastung.',
+			color: '#5df6be',
+			warning: false
 		},
 		{
 			id: 3,
 			date: '',
 			title: 'C',
-			description: 'Mittlere Umweltbelastung.'
+			description: 'Mittlere Umweltbelastung.',
+			color: '#5cd9f5',
+			warning: false
 		},
 		{
 			id: 4,
 			date: '',
 			title: 'D',
-			description: 'Erhöhte Umweltbelastung.'
+			description: 'Erhöhte Umweltbelastung.',
+			color: '#f6d671',
+			warning: false
 		},
 		{
 			id: 5,
 			date: '',
 			title: 'E',
-			description: 'Hohe Umweltbelastung.'
+			description: 'Hohe Umweltbelastung.',
+			color: '#f56748',
+			warning: false
 		},
 		{
 			id: 6,
 			date: '',
 			title: 'F',
-			description: 'Sehr hohe Umweltbelastung.'
+			description: 'Sehr hohe Umweltbelastung.',
+			color: '#ff2e58',
+			warning: true
 		}
 	];
+
+	// Carbon Footprint
+	const co2_total_kg = pr.ecoscore_data.agribalyse.co2_total; // in kg CO2 per kg of product
+	const co2_total_100g = co2_total_kg / 10; // in kg CO2 per 100g of product
+	const petrol_car_equivalent = co2_total_100g / 0.18; // in km
 </script>
 
 <style lang="scss">
@@ -5801,14 +5776,30 @@
 			}
 		}
 		.content {
+			.content-scroll-area {
+				mask-image: linear-gradient(
+					0deg,
+					rgba(0, 0, 0, 0) 5%,
+					rgba(0, 0, 0, 1) 20%,
+					rgba(0, 0, 0, 1) 95%,
+					rgba(0, 0, 0, 0) 100%
+				);
+				height: 92.5%;
+				.production-system {
+					// last child
+					margin-bottom: 4rem;
+				}
+			}
 			width: inherit;
 			height: inherit;
 			padding: 1rem 1.25rem;
 			display: flex;
 			flex-direction: column;
+			margin-bottom: 10rem;
 			gap: 1rem;
 			.title {
 				p {
+					margin-top: 0.75rem;
 					font-size: 0.8rem;
 					font-weight: 300;
 				}
@@ -5827,10 +5818,77 @@
 				position: fixed;
 				bottom: 0;
 				left: 0;
-				background-color: rgba(255, 255, 255, 0.1);
-				backdrop-filter: blur(40px);
 				display: grid;
 				place-items: center;
+				z-index: 1000;
+			}
+			.divider-title {
+				margin-top: 1.5rem;
+				font-weight: 700;
+				font-size: 1.3em;
+			}
+			.divider {
+				margin-top: 0.05rem;
+				margin-bottom: 2rem;
+			}
+
+			.ecoscore-data {
+				.na,
+				.data {
+					margin-top: 1rem;
+					.title {
+						font-size: 0.9em;
+						font-weight: 800;
+					}
+					.description {
+						margin-top: 0.5rem;
+						font-size: 0.9em;
+						font-weight: 500;
+						color: #ffffffe5;
+						font-style: italic;
+					}
+				}
+			}
+
+			.ecoscore-grade {
+				.data {
+					.title {
+						display: flex;
+						justify-content: space-between;
+					}
+					.ecoscore-score {
+						margin-top: 1rem;
+					}
+					.description {
+						margin-top: 1rem;
+						font-size: 1em;
+						font-weight: 900;
+						font-style: italic;
+					}
+				}
+				.na {
+					.iconify {
+						font-size: 1.5em;
+						color: #ff2e58;
+						transform: translateY(-10px);
+					}
+				}
+			}
+			.carbon-footprint {
+				.data {
+					.card-content {
+						display: flex;
+						flex-direction: row;
+						.iconify {
+							font-size: 10.5em;
+							color: #ff2e58;
+						}
+						.evaluation {
+							display: flex;
+							flex-direction: column;
+						}
+					}
+				}
 			}
 		}
 	}

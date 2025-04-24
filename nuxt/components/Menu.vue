@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-	<div class="relative h-[300px] w-full">
+	<div class="relative h-[120px] w-full">
 		<nav
 			class="menu"
 			:style="{

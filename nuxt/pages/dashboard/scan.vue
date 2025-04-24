@@ -594,13 +594,13 @@
 				width: 100%;
 				height: 100%;
 				border-radius: inherit;
-				background-color: rgba(0, 0, 0, 0.5);
+				background-color: rgba(0, 0, 0, 0.65);
 				transform: translateY(
 					0%
 				); // to: translateY(0%); | from: translateY(100%);
 				opacity: 1; // to: opacity: 1; | from: opacity: 0;
 				backdrop-filter: blur(
-					20px
+					30px
 				); // to: blur(20px); | from: blur(0px);
 			}
 			.viewport-overlay {
