@@ -20,7 +20,7 @@
 				</div>
 
 				<h1 class="divider-title">Übersicht</h1>
-				<UiDivider icon="lucide:table-of-contents" class="divider" />
+				<UiDivider icon="lucide:square-chart-gantt" class="divider" />
 
 				<div class="ecoscore-data ecoscore-grade">
 					<div v-if="ecoscore_id > 0" class="data">
@@ -99,20 +99,58 @@
 					<div
 						v-if="pr.ecoscore_data.agribalyse.co2_total"
 						class="data">
+						<UiFancyIcon
+							type="light"
+							icon="lucide:car"
+							size="lg"
+							class="icon-seperator" />
 						<!-- prettier-ignore -->
 						<span class="title">
-							Entspricht einer Fahrt von ca. {{ Number(petrol_car_equivalent.toFixed(3)) }}km mit einem Benzin-Auto.
+							Entspricht einer Fahrt von ca. <span :style="`color: ${petrol_car_equivalent_color};`">{{ Number(petrol_car_equivalent.toFixed(1)) }}km</span> mit einem Benzin-Auto.
 						</span>
 						<!-- prettier-ignore -->
-						<span class="details">
-							{{ Number((co2_total_kg * 100).toFixed(1)) }}g CO<sub>2</sub>e pro 100g Produkt
+						<span :style="`color: ${petrol_car_equivalent_color};`" class="details">
+							{{ Number((co2_total_kg * 100).toFixed(2)) }}g CO<sub>2</sub>e pro 100g Produkt
 						</span>
+						<UiFancyIcon
+							type="light"
+							icon="lucide:chart-no-axes-combined"
+							size="lg"
+							class="icon-seperator mt-10" />
+						<UiChartBar
+							:data="carbonFootprintChartData"
+							index="name"
+							:categories="[
+								'Landwirtschaft',
+								'Verarbeitung',
+								'Verpackung',
+								'Transport',
+								'Vertrieb',
+								'Verbrauch'
+							]"
+							:colors="[
+								'#2dd4bf',
+								'#22d3ee',
+								'#60a5fa',
+								'#818cf8',
+								'#a78bfa',
+								'#f472b6'
+							]"
+							:rounded-corners="4"
+							:y-formatter="
+								(tick, i) => {
+									return typeof tick === 'number'
+										? `${tick.toFixed(1)}%`
+										: '';
+								}
+							" />
 					</div>
 					<div v-else class="na">
-						<!-- prettier-ignore -->
-						<span class="title">
-							CO<sub>2</sub>-Billanz:
-						</span>
+						<UiFancyIcon
+							type="light"
+							icon="lucide:car"
+							size="lg"
+							class="icon-seperator" />
 						<!-- prettier-ignore -->
 						<p class="description">
 							Daten zur CO<sub>2</sub>-Billanz sind entweder noch nicht für dieses Produkt
@@ -121,10 +159,177 @@
 						</p>
 					</div>
 				</div>
-				<div class="ecoscore-data packaging-impact"></div>
-				<div class="ecoscore-data ingredients-origins"></div>
+				<div class="ecoscore-data packaging-impact">
+					<div
+						v-if="
+							pr.ecoscore_data.adjustments.packaging.warning !==
+							'packaging_data_missing'
+						"
+						class="data">
+						<UiFancyIcon
+							type="light"
+							icon="lucide:package-open"
+							size="lg"
+							class="icon-seperator" />
+						<span
+							v-if="
+								pr.ecoscore_data.adjustments.packaging.value >=
+								-5
+							"
+							class="title"
+							style="color: #f94b7d">
+							Verpackung mit einem hohem Umwelteinfluss
+						</span>
+						<span
+							v-else-if="
+								pr.ecoscore_data.adjustments.packaging.value >=
+								-12
+							"
+							class="title"
+							style="color: #fd927a">
+							Verpackung mit einem moderaten Umwelteinfluss
+						</span>
+						<span v-else class="title" style="color: #34d399">
+							Verpackung mit einem niedrigen Umwelteinfluss
+						</span>
+
+						<div
+							class="packaging-table grid overflow-x-auto rounded-md border pb-4 mt-8">
+							<UiTable>
+								<UiTableCaption>
+									Liste der verwendeten Verpackungsarten
+								</UiTableCaption>
+								<UiTableHeader>
+									<UiTableRow>
+										<UiTableHead>Shape</UiTableHead>
+										<UiTableHead>Material</UiTableHead>
+										<UiTableHead>Recycling</UiTableHead>
+										<UiTableHead class="text-right">
+											Umwelteinfluss
+										</UiTableHead>
+									</UiTableRow>
+								</UiTableHeader>
+								<UiTableBody class="last:border-b">
+									<template
+										v-for="packaging in pr.ecoscore_data
+											.adjustments.packaging.packagings"
+										:key="packaging.material">
+										<UiTableRow>
+											<UiTableCell class="font-medium">
+												{{ packaging.shape }}
+											</UiTableCell>
+											<UiTableCell>
+												{{ packaging.material }}
+											</UiTableCell>
+											<UiTableCell
+												:style="`color: ${
+													packaging.recycling ===
+														'en:recycling' &&
+													packaging.non_recyclable_and_non_biodegradable !==
+														'yes'
+														? '#34d399'
+														: ''
+												};`">
+												{{
+													packaging.recycling ===
+														'en:recycling' &&
+													packaging.non_recyclable_and_non_biodegradable !==
+														'yes'
+														? 'Recycable'
+														: '-'
+												}}
+											</UiTableCell>
+											<UiTableCell
+												class="text-right"
+												:style="`color: ${(packaging.environmental_score_material_score ?? 0) < 50 ? '#f94b7d' : (packaging.environmental_score_material_score ?? 0) > 80 ? '#34d399' : '#fd927a'};`">
+												{{
+													(packaging.environmental_score_material_score ??
+														0) < 50
+														? 'Hoch'
+														: (packaging.environmental_score_material_score ??
+																	0) > 80
+															? 'Niedrig'
+															: 'Moderat'
+												}}
+											</UiTableCell>
+										</UiTableRow>
+									</template>
+								</UiTableBody>
+							</UiTable>
+						</div>
+						<div
+							v-if="
+								pr.ecoscore_data.adjustments.packaging
+									.warning ===
+								('unspecified_material' as string)
+							"
+							class="unspecified-material-warning">
+							<p>
+								Die Angaben zur Verpackung dieses Produkts sind
+								nicht ausreichend präzise (genaue Formen und
+								Materialien aller Verpackungsbestandteile).
+							</p>
+							<NuxtLink to="https://world.openfoodfacts.org/">
+								<Icon name="lucide:link" />
+								openfoodfacts.org
+							</NuxtLink>
+						</div>
+					</div>
+					<div v-else class="na">
+						<UiFancyIcon
+							type="light"
+							icon="lucide:package-open"
+							size="lg"
+							class="icon-seperator" />
+						<p class="description">
+							Verpackungsdaten sind entweder noch nicht für dieses
+							Produkt verfügbar oder können momentan nicht korrekt
+							abgerufen werden.
+						</p>
+						<NuxtLink
+							class="na-link"
+							to="https://world.openfoodfacts.org/">
+							<Icon name="lucide:link" />
+							openfoodfacts.org
+						</NuxtLink>
+					</div>
+				</div>
+				<div class="ecoscore-data ingredients-origins">
+					<div
+						v-if="
+							pr.ecoscore_data.adjustments.origins_of_ingredients
+								.warning !== 'origins_are_100_percent_unknown'
+						"
+						class="data">
+						<UiFancyIcon
+							type="light"
+							icon="lucide:shopping-basket"
+							size="lg"
+							class="icon-seperator" />
+					</div>
+					<div v-else class="na">
+						<UiFancyIcon
+							type="light"
+							icon="lucide:shopping-basket"
+							size="lg"
+							class="icon-seperator" />
+						<p class="description">
+							Informationen zur Herkunft der Zutaten sind entweder
+							noch nicht für dieses Produkt verfügbar oder können
+							momentan nicht korrekt abgerufen werden.
+						</p>
+						<NuxtLink
+							class="na-link"
+							to="https://world.openfoodfacts.org/">
+							<Icon name="lucide:link" />
+							openfoodfacts.org
+						</NuxtLink>
+					</div>
+				</div>
 				<div class="ecoscore-data threatened-species"></div>
 				<div class="ecoscore-data production-system"></div>
+
+				<div class="sources"></div>
 			</UiScrollArea>
 			<div class="continue-button">
 				<UiButton variant="gooeyRight" @click="overlayFadeOut">
@@ -5694,7 +5899,7 @@
 		}
 	}
 
-	const ecoscore_id: number = scoreToId(pr.ecoscore_grade);
+	const ecoscore_id: number = scoreToId(pr.ecoscore_data.grades.de);
 
 	// EcoScore items
 	const items = [
@@ -5752,6 +5957,43 @@
 	const co2_total_kg = pr.ecoscore_data.agribalyse.co2_total; // in kg CO2 per kg of product
 	const co2_total_100g = co2_total_kg / 10; // in kg CO2 per 100g of product
 	const petrol_car_equivalent = co2_total_100g / 0.18; // in km
+	const petrol_car_equivalent_color =
+		petrol_car_equivalent < 2.5
+			? '#34d399'
+			: petrol_car_equivalent > 7.5
+				? '#f94b7d'
+				: '#fd927a';
+
+	type AgribalyseKeys =
+		| 'co2_agriculture'
+		| 'co2_consumption'
+		| 'co2_distribution'
+		| 'co2_packaging'
+		| 'co2_processing'
+		| 'co2_transportation';
+
+	function calcPercentage(category: AgribalyseKeys): number {
+		const co2_category = pr.ecoscore_data.agribalyse[category];
+		if (co2_category) {
+			const result = co2_category / pr.ecoscore_data.agribalyse.co2_total;
+			const result_ = result * 10000;
+			return Math.floor(result_) / 100;
+		}
+		return 0;
+	}
+
+	const carbonFootprintChartData = [
+		{
+			name: '% der Gesamtemission',
+			Landwirtschaft: calcPercentage('co2_agriculture'),
+			Verarbeitung: calcPercentage('co2_processing'),
+			Verpackung: calcPercentage('co2_packaging'),
+			Transport: calcPercentage('co2_transportation'),
+			Vertrieb: calcPercentage('co2_distribution'),
+			Verbrauch: calcPercentage('co2_consumption')
+		}
+	];
+	console.log(carbonFootprintChartData);
 </script>
 
 <style lang="scss">
@@ -5779,9 +6021,9 @@
 			.content-scroll-area {
 				mask-image: linear-gradient(
 					0deg,
-					rgba(0, 0, 0, 0) 5%,
-					rgba(0, 0, 0, 1) 20%,
-					rgba(0, 0, 0, 1) 95%,
+					rgba(0, 0, 0, 0) 1%,
+					rgb(0, 0, 0) 20%,
+					rgb(0, 0, 0) 95%,
 					rgba(0, 0, 0, 0) 100%
 				);
 				height: 92.5%;
@@ -5835,10 +6077,18 @@
 			.ecoscore-data {
 				.na,
 				.data {
-					margin-top: 1rem;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					flex-direction: column;
+					text-align: center;
+					margin-top: 2rem;
 					.title {
 						font-size: 0.9em;
 						font-weight: 800;
+					}
+					.icon-seperator {
+						margin-bottom: 1rem;
 					}
 					.description {
 						margin-top: 0.5rem;
@@ -5847,11 +6097,24 @@
 						color: #ffffffe5;
 						font-style: italic;
 					}
+					.na-link {
+						margin-top: 1rem;
+						font-size: 0.8em;
+						font-weight: 400;
+						font-style: italic;
+						text-decoration: underline;
+						cursor: pointer;
+					}
 				}
 			}
 
 			.ecoscore-grade {
 				.data {
+					display: flex;
+					justify-content: flex-start;
+					align-items: flex-start;
+					flex-direction: column;
+					text-align: left;
 					.title {
 						display: flex;
 						justify-content: space-between;
@@ -5876,17 +6139,40 @@
 			}
 			.carbon-footprint {
 				.data {
-					.card-content {
-						display: flex;
-						flex-direction: row;
-						.iconify {
-							font-size: 10.5em;
-							color: #ff2e58;
-						}
-						.evaluation {
-							display: flex;
-							flex-direction: column;
-						}
+					.title {
+						font-size: 1.1em;
+						font-weight: 700;
+					}
+					.details {
+						font-size: 0.9em;
+						font-style: italic;
+						font-weight: 400;
+					}
+					.css-czc1aa-bullet-legend-component {
+						width: 30vh;
+					}
+				}
+			}
+			.packaging-impact {
+				.packaging-table {
+					text-align: left;
+				}
+				.unspecified-material-warning {
+					margin-top: 1rem;
+					display: flex;
+					justify-content: flex-start;
+					align-items: flex-start;
+					flex-direction: column;
+					p,
+					a {
+						font-size: 0.7em;
+						text-align: left;
+						font-style: italic;
+						font-weight: 400;
+					}
+					a {
+						margin-top: 1rem;
+						text-decoration: underline;
 					}
 				}
 			}
