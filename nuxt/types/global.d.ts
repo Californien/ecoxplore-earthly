@@ -131,7 +131,7 @@ declare global {
 						transportation_values: Record<string, number>;
 						value: number;
 						values: Record<string, number>;
-						warning: string;
+						warning?: string;
 					};
 					packaging: {
 						non_recyclable_and_non_biodegradable_materials: number;
@@ -158,8 +158,8 @@ declare global {
 						warning: string;
 					};
 					threatened_species: {
-						ingredient: string;
-						value: number;
+						ingredient?: string;
+						value?: number;
 					};
 				};
 				agribalyse: {

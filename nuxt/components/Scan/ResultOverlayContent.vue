@@ -223,21 +223,15 @@
 											</UiTableCell>
 											<UiTableCell
 												:style="`color: ${
-													packaging.recycling ===
-														'en:recycling' &&
-													packaging.non_recyclable_and_non_biodegradable !==
-														'yes'
-														? '#34d399'
-														: ''
+													packaging.non_recyclable_and_non_biodegradable ===
+													'yes'
+														? '#f94b7d'
+														: packaging.non_recyclable_and_non_biodegradable ===
+															  'no'
+															? '#34d399'
+															: '#fd927a'
 												};`">
-												{{
-													packaging.recycling ===
-														'en:recycling' &&
-													packaging.non_recyclable_and_non_biodegradable !==
-														'yes'
-														? 'Recycable'
-														: '-'
-												}}
+												{{ packaging.recycling }}
 											</UiTableCell>
 											<UiTableCell
 												class="text-right"
@@ -257,6 +251,7 @@
 								</UiTableBody>
 							</UiTable>
 						</div>
+
 						<div
 							v-if="
 								pr.ecoscore_data.adjustments.packaging
@@ -306,6 +301,88 @@
 							icon="lucide:shopping-basket"
 							size="lg"
 							class="icon-seperator" />
+						<span
+							v-if="
+								pr.ecoscore_data.adjustments
+									.origins_of_ingredients.epi_score <= 50
+							"
+							class="title"
+							style="color: #f94b7d">
+							Herkunft der Zutaten mit einem hohem Umwelteinfluss
+						</span>
+						<span
+							v-else-if="
+								pr.ecoscore_data.adjustments
+									.origins_of_ingredients.epi_score > 93
+							"
+							class="title"
+							style="color: #34d399">
+							Herkunft der Zutaten mit einem niedrigen
+							Umwelteinfluss
+						</span>
+						<span v-else class="title" style="color: #fd927a">
+							Herkunft der Zutaten mit einem moderatem
+							Umwelteinfluss
+						</span>
+						<div
+							class="ingredients-table grid overflow-x-auto rounded-md border pb-4">
+							<UiTable>
+								<UiTableCaption>
+									Liste der Zutaten-Herkünfte
+								</UiTableCaption>
+								<UiTableHeader>
+									<UiTableRow>
+										<UiTableHead class="w-[100px]">
+											Herkunft
+										</UiTableHead>
+										<UiTableHead>% der Zutaten</UiTableHead>
+										<UiTableHead class="text-right">
+											Umwelteinfluss
+										</UiTableHead>
+									</UiTableRow>
+								</UiTableHeader>
+								<UiTableBody class="last:border-b">
+									<template
+										v-for="ingr in pr.ecoscore_data
+											.adjustments.origins_of_ingredients
+											.aggregated_origins"
+										:key="ingr.percent">
+										<UiTableRow>
+											<UiTableCell class="font-medium">
+												{{ ingr.origin }}
+											</UiTableCell>
+											<UiTableCell>
+												{{ ingr.percent.toFixed(1) }}
+											</UiTableCell>
+											<UiTableCell
+												class="text-right"
+												:style="`color: ${
+													Number(ingr.epi_score) <= 50
+														? '#f94b7d'
+														: Number(
+																	ingr.epi_score
+															  ) > 93
+															? '#34d399'
+															: '#fd927a'
+												};`">
+												{{
+													Number(ingr.epi_score) <= 50
+														? 'Hoch'
+														: Number(
+																	ingr.epi_score
+															  ) > 93
+															? 'Niedrig'
+															: 'Moderat'
+												}}
+											</UiTableCell>
+										</UiTableRow>
+									</template>
+								</UiTableBody>
+							</UiTable>
+						</div>
+						<div
+							id="map"
+							class="map h-[200px] w-[100%] rounded-2xl mt-4"></div>
 					</div>
 					<div v-else class="na">
 						<UiFancyIcon
@@ -326,10 +403,231 @@
 						</NuxtLink>
 					</div>
 				</div>
-				<div class="ecoscore-data threatened-species"></div>
-				<div class="ecoscore-data production-system"></div>
+				<div class="ecoscore-data threatened-species">
+					<div class="data">
+						<UiFancyIcon
+							type="light"
+							icon="lucide:tree-palm"
+							size="lg"
+							class="icon-seperator" />
+						<div
+							v-if="
+								pr.ingredients_analysis_tags.includes(
+									'en:palm-oil-content-unknown'
+								)
+							">
+							<span class="title">
+								Informationen zum Palmöl unbekannt
+							</span>
+						</div>
+						<div v-else-if="pr.ingredients_from_palm_oil_n > 0">
+							<span class="title" style="color: #f94b7d">
+								Produkt enthält Palmöl
+							</span>
+							<p class="details">
+								Tropische Wälder in Asien, Afrika und
+								Lateinamerika werden abgeholzt, um
+								Ölpalmenplantagen anzulegen und auszuweiten.
+								Diese Entwaldung trägt zum Klimawandel bei und
+								gefährdet Arten wie den Orang-Utan, den
+								Zwerg-Elefanten und das Sumatra-Nashorn.
+							</p>
+						</div>
+						<div
+							v-else-if="
+								pr.ingredients_from_palm_oil_n === 0 &&
+								pr.ingredients_from_or_that_may_be_from_palm_oil_n >
+									0
+							">
+							<span class="title" style="color: #fd927a">
+								Produkt kann Palmöl enthalten
+							</span>
+							<p class="details">
+								Tropische Wälder in Asien, Afrika und
+								Lateinamerika werden abgeholzt, um
+								Ölpalmenplantagen anzulegen und auszuweiten.
+								Diese Entwaldung trägt zum Klimawandel bei und
+								gefährdet Arten wie den Orang-Utan, den
+								Zwerg-Elefanten und das Sumatra-Nashorn.
+							</p>
+						</div>
+						<div v-else>
+							<span class="title" style="color: #34d399">
+								Produkt enthält kein Palmöl
+							</span>
+							<p class="details">
+								Tropische Wälder in Asien, Afrika und
+								Lateinamerika werden abgeholzt, um
+								Ölpalmenplantagen anzulegen und auszuweiten.
+								Diese Entwaldung trägt zum Klimawandel bei und
+								gefährdet Arten wie den Orang-Utan, den
+								Zwerg-Elefanten und das Sumatra-Nashorn.
+							</p>
+						</div>
+						<UiFancyIcon
+							type="light"
+							icon="lucide:turtle"
+							size="lg"
+							class="icon-seperator mt-6" />
+						<div
+							v-if="
+								!pr.ecoscore_data.adjustments.threatened_species
+									.ingredient
+							">
+							<span class="title" style="color: #34d399">
+								Keine Zutaten, die Arten gefährden
+							</span>
+						</div>
+						<div v-else>
+							<span class="title" style="color: #f94b7d">
+								Zutaten, die Arten gefährden
+							</span>
+							<div class="threatened-species-ingredient">
+								<span
+									v-if="
+										pr.ecoscore_data.adjustments
+											.threatened_species.ingredient ===
+										'en:palm-oil'
+									"
+									class="ingredient">
+									Palmöl
+								</span>
+								<span v-else class="ingredient">
+									{{
+										pr.ecoscore_data.adjustments
+											.threatened_species.ingredient
+									}}
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="ecoscore-data production-system">
+					<div class="data">
+						<UiFancyIcon
+							type="light"
+							icon="lucide:tags"
+							size="lg"
+							class="icon-seperator" />
+						<div class="ingredients-analysis">
+							<div
+								class="line palm-oil"
+								:class="
+									pr.ingredients_analysis_tags.includes(
+										'en:palm-oil'
+									)
+										? 'red'
+										: pr.ingredients_analysis_tags.includes(
+													'en:palm-oil-free'
+											  )
+											? 'green'
+											: ''
+								">
+								<UiFancyIcon
+									class="line-icon"
+									type="light"
+									icon="lucide:tree-palm"
+									circle
+									size="md" />
+								<p class="line-text">
+									{{
+										pr.ingredients_analysis_tags.includes(
+											'en:palm-oil'
+										)
+											? 'Enthält Palmöl'
+											: pr.ingredients_analysis_tags.includes(
+														'en:palm-oil-free'
+												  )
+												? 'Enthält kein Palmöl'
+												: 'Palmöl-Status unbekannt'
+									}}
+								</p>
+							</div>
+							<div
+								class="line vegan"
+								:class="
+									pr.ingredients_analysis_tags.includes(
+										'en:vegan'
+									)
+										? 'green'
+										: pr.ingredients_analysis_tags.includes(
+													'en:non-vegan'
+											  )
+											? 'red'
+											: ''
+								">
+								<UiFancyIcon
+									class="line-icon"
+									type="light"
+									icon="lucide:vegan"
+									circle
+									size="md" />
+								<p class="line-text">
+									{{
+										pr.ingredients_analysis_tags.includes(
+											'en:vegan'
+										)
+											? 'Vegan'
+											: pr.ingredients_analysis_tags.includes(
+														'en:non-vegan'
+												  )
+												? 'Nicht vegan'
+												: 'Vegan-Status unbekannt'
+									}}
+								</p>
+							</div>
+							<div
+								:class="
+									pr.ingredients_analysis_tags.includes(
+										'en:vegetarian'
+									)
+										? 'green'
+										: pr.ingredients_analysis_tags.includes(
+													'en:non-vegetarian'
+											  )
+											? 'red'
+											: ''
+								"
+								class="line vegetarian">
+								<UiFancyIcon
+									class="line-icon"
+									type="light"
+									icon="lucide:egg-off"
+									circle
+									size="md" />
+								<p class="line-text">
+									{{
+										pr.ingredients_analysis_tags.includes(
+											'en:vegetarian'
+										)
+											? 'Vegetarisch'
+											: pr.ingredients_analysis_tags.includes(
+														'en:non-vegetarian'
+												  )
+												? 'Nicht vegetarisch'
+												: 'Vegetraisch-Status unbekannt'
+									}}
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
 
-				<div class="sources"></div>
+				<UiGradientDivider />
+
+				<div class="ecoscore-data sources">
+					<div class="data">
+						<UiFancyIcon
+							type="light"
+							icon="lucide:link-2"
+							size="lg"
+							class="icon-seperator" />
+						<!-- prettier-ignore -->
+						<span class="warning">
+							Alle angezeigten Umweltinformationen stammen aus der <NuxtLink href="https://de.openfoodfacts.org/">OpenFoodFacts-Datenbank</NuxtLink>. Trotz sorgfältiger Verarbeitung übernehmen wir keine Gewähr für die Vollständigkeit, Richtigkeit oder Aktualität der bereitgestellten Daten. Die Angaben dienen ausschließlich zur allgemeinen Information und ersetzen keine individuelle Beratung.
+						</span>
+					</div>
+				</div>
 			</UiScrollArea>
 			<div class="continue-button">
 				<UiButton variant="gooeyRight" @click="overlayFadeOut">
@@ -342,6 +640,8 @@
 
 <script lang="ts" setup>
 	import { gsap } from 'gsap';
+	import L from 'leaflet';
+	import 'leaflet/dist/leaflet.css';
 
 	// const props = defineProps<{
 	// 	apiResponse: OpenFoodFactsProduct;
@@ -647,213 +947,218 @@
 								{
 									epi_score: '0',
 									origin: 'en:unknown',
-									percent: 100,
+									percent: 86.1856262626263,
+									transportation_score: 0
+								},
+								{
+									epi_score: '93',
+									origin: 'en:france',
+									percent: 13.8143737373737,
 									transportation_score: 0
 								}
 							],
-							epi_score: 0,
-							epi_value: -5,
+							epi_score: 12.8473675757576,
+							epi_value: -4,
 							origins_from_categories: ['en:unknown'],
 							origins_from_origins_field: ['en:unknown'],
 							transportation_score: 0,
 							transportation_scores: {
-								ad: 0,
+								ad: 7.87419303030303,
 								al: 0,
-								at: 0,
-								ax: 0,
-								ba: 0,
-								be: 0,
-								bg: 0,
-								ch: 0,
-								cy: 0,
-								cz: 0,
-								de: 0,
-								dk: 0,
-								dz: 0,
-								ee: 0,
-								eg: 0,
-								es: 0,
-								fi: 0,
-								fo: 0,
-								fr: 0,
-								gg: 0,
-								gi: 0,
-								gr: 0,
-								hr: 0,
-								hu: 0,
-								ie: 0,
-								il: 0,
-								im: 0,
-								is: 0,
-								it: 0,
-								je: 0,
-								lb: 0,
-								li: 0,
-								lt: 0,
-								lu: 0,
-								lv: 0,
-								ly: 0,
-								ma: 0,
-								mc: 0,
-								md: 0,
-								me: 0,
-								mk: 0,
-								mt: 0,
-								nl: 0,
-								no: 0,
-								pl: 0,
-								ps: 0,
-								pt: 0,
-								ro: 0,
-								rs: 0,
-								se: 0,
-								si: 0,
-								sj: 0,
-								sk: 0,
-								sm: 0,
-								sy: 0,
-								tn: 0,
-								tr: 0,
-								ua: 0,
-								uk: 0,
+								at: 5.24946202020202,
+								ax: 9.2556304040404,
+								ba: 1.93401232323232,
+								be: 11.7422176767677,
+								bg: 2.90101848484848,
+								ch: 9.53191787878788,
+								cy: 5.52574949494949,
+								cz: 6.63089939393939,
+								de: 8.42676797979798,
+								dk: 5.38760575757576,
+								dz: 6.21646818181818,
+								ee: 9.80820535353535,
+								eg: 4.83503080808081,
+								es: 5.11131828282828,
+								fi: 9.53191787878788,
+								fo: 8.56491171717172,
+								fr: 13.8143737373737,
+								gg: 10.7752115151515,
+								gi: 0.552574949494949,
+								gr: 6.76904313131313,
+								hr: 4.14431212121212,
+								hu: 3.59173717171717,
+								ie: 6.49275565656566,
+								il: 4.69688707070707,
+								im: 6.90718686868687,
+								is: 7.32161808080808,
+								it: 6.49275565656566,
+								je: 10.498924040404,
+								lb: 5.38760575757576,
+								li: 8.84119919191919,
+								lt: 8.70305545454545,
+								lu: 11.3277864646465,
+								lv: 9.80820535353535,
+								ly: 7.73604929292929,
+								ma: 8.28862424242424,
+								mc: 7.18347434343434,
+								md: 4.00616838383838,
+								me: 5.11131828282828,
+								mk: 4.00616838383838,
+								mt: 7.87419303030303,
+								nl: 10.6370677777778,
+								no: 2.76287474747475,
+								pl: 3.45359343434343,
+								ps: 5.80203696969697,
+								pt: 1.79586858585859,
+								ro: 4.28245585858586,
+								rs: 0.967006161616161,
+								se: 2.07215606060606,
+								si: 5.24946202020202,
+								sj: 7.32161808080808,
+								sk: 3.3154496969697,
+								sm: 5.52574949494949,
+								sy: 3.59173717171717,
+								tn: 1.24329363636364,
+								tr: 0.967006161616161,
+								ua: 5.52574949494949,
+								uk: 9.39377414141414,
 								us: 0,
-								va: 0,
+								va: 4.00616838383838,
 								world: 0,
-								xk: 0
+								xk: 3.86802464646465
 							},
 							transportation_value: 0,
 							transportation_values: {
-								ad: 0,
+								ad: 1,
 								al: 0,
-								at: 0,
-								ax: 0,
+								at: 1,
+								ax: 1,
 								ba: 0,
-								be: 0,
+								be: 2,
 								bg: 0,
-								ch: 0,
-								cy: 0,
-								cz: 0,
-								de: 0,
-								dk: 0,
-								dz: 0,
-								ee: 0,
-								eg: 0,
-								es: 0,
-								fi: 0,
-								fo: 0,
-								fr: 0,
-								gg: 0,
+								ch: 1,
+								cy: 1,
+								cz: 1,
+								de: 1,
+								dk: 1,
+								dz: 1,
+								ee: 1,
+								eg: 1,
+								es: 1,
+								fi: 1,
+								fo: 1,
+								fr: 2,
+								gg: 2,
 								gi: 0,
-								gr: 0,
-								hr: 0,
-								hu: 0,
-								ie: 0,
-								il: 0,
-								im: 0,
-								is: 0,
-								it: 0,
-								je: 0,
-								lb: 0,
-								li: 0,
-								lt: 0,
-								lu: 0,
-								lv: 0,
-								ly: 0,
-								ma: 0,
-								mc: 0,
-								md: 0,
-								me: 0,
-								mk: 0,
-								mt: 0,
-								nl: 0,
+								gr: 1,
+								hr: 1,
+								hu: 1,
+								ie: 1,
+								il: 1,
+								im: 1,
+								is: 1,
+								it: 1,
+								je: 2,
+								lb: 1,
+								li: 1,
+								lt: 1,
+								lu: 2,
+								lv: 1,
+								ly: 1,
+								ma: 1,
+								mc: 1,
+								md: 1,
+								me: 1,
+								mk: 1,
+								mt: 1,
+								nl: 2,
 								no: 0,
-								pl: 0,
-								ps: 0,
+								pl: 1,
+								ps: 1,
 								pt: 0,
-								ro: 0,
+								ro: 1,
 								rs: 0,
 								se: 0,
-								si: 0,
-								sj: 0,
+								si: 1,
+								sj: 1,
 								sk: 0,
-								sm: 0,
-								sy: 0,
+								sm: 1,
+								sy: 1,
 								tn: 0,
 								tr: 0,
-								ua: 0,
-								uk: 0,
+								ua: 1,
+								uk: 1,
 								us: 0,
-								va: 0,
+								va: 1,
 								world: 0,
-								xk: 0
+								xk: 1
 							},
-							value: -5,
+							value: -4,
 							values: {
-								ad: -5,
-								al: -5,
-								at: -5,
-								ax: -5,
-								ba: -5,
-								be: -5,
-								bg: -5,
-								ch: -5,
-								cy: -5,
-								cz: -5,
-								de: -5,
-								dk: -5,
-								dz: -5,
-								ee: -5,
-								eg: -5,
-								es: -5,
-								fi: -5,
-								fo: -5,
-								fr: -5,
-								gg: -5,
-								gi: -5,
-								gr: -5,
-								hr: -5,
-								hu: -5,
-								ie: -5,
-								il: -5,
-								im: -5,
-								is: -5,
-								it: -5,
-								je: -5,
-								lb: -5,
-								li: -5,
-								lt: -5,
-								lu: -5,
-								lv: -5,
-								ly: -5,
-								ma: -5,
-								mc: -5,
-								md: -5,
-								me: -5,
-								mk: -5,
-								mt: -5,
-								nl: -5,
-								no: -5,
-								pl: -5,
-								ps: -5,
-								pt: -5,
-								ro: -5,
-								rs: -5,
-								se: -5,
-								si: -5,
-								sj: -5,
-								sk: -5,
-								sm: -5,
-								sy: -5,
-								tn: -5,
-								tr: -5,
-								ua: -5,
-								uk: -5,
-								us: -5,
-								va: -5,
-								world: -5,
-								xk: -5
-							},
-							warning: 'origins_are_100_percent_unknown'
+								ad: -3,
+								al: -4,
+								at: -3,
+								ax: -3,
+								ba: -4,
+								be: -2,
+								bg: -4,
+								ch: -3,
+								cy: -3,
+								cz: -3,
+								de: -3,
+								dk: -3,
+								dz: -3,
+								ee: -3,
+								eg: -3,
+								es: -3,
+								fi: -3,
+								fo: -3,
+								fr: -2,
+								gg: -2,
+								gi: -4,
+								gr: -3,
+								hr: -3,
+								hu: -3,
+								ie: -3,
+								il: -3,
+								im: -3,
+								is: -3,
+								it: -3,
+								je: -2,
+								lb: -3,
+								li: -3,
+								lt: -3,
+								lu: -2,
+								lv: -3,
+								ly: -3,
+								ma: -3,
+								mc: -3,
+								md: -3,
+								me: -3,
+								mk: -3,
+								mt: -3,
+								nl: -2,
+								no: -4,
+								pl: -3,
+								ps: -3,
+								pt: -4,
+								ro: -3,
+								rs: -4,
+								se: -4,
+								si: -3,
+								sj: -3,
+								sk: -4,
+								sm: -3,
+								sy: -3,
+								tn: -4,
+								tr: -4,
+								ua: -3,
+								uk: -3,
+								us: -4,
+								va: -3,
+								world: -4,
+								xk: -3
+							}
 						},
 						packaging: {
 							non_recyclable_and_non_biodegradable_materials: 1,
@@ -3771,8 +4076,14 @@
 				lc_imported: 'fr',
 				link: 'https://www.nutella.com/de/de/produkte/nutella-biscuits',
 				main_countries_tags: [],
-				manufacturing_places: '',
-				manufacturing_places_tags: [],
+				manufacturing_places:
+					'William Saurin (WS) - 26 Rue de Crécy - D35 - 02270 Pouilly-sur-Serre,Aisne,Picardie,France',
+				manufacturing_places_tags: [
+					'william-saurin-ws-26-rue-de-crecy-d35-02270-pouilly-sur-serre',
+					'aisne',
+					'picardie',
+					'france'
+				],
 				max_imgid: '85',
 				minerals_prev_tags: [],
 				minerals_tags: [],
@@ -5861,6 +6172,7 @@
 		}
 	};
 
+	// @ts-expect-error error will be gone soon
 	const parentDiv = ref(props.parentDiv);
 	const pr = props.apiResponse.product;
 
@@ -5952,7 +6264,7 @@
 			warning: true
 		}
 	];
-
+	console.log(pr.labels, pr.labels_tags);
 	// Carbon Footprint
 	const co2_total_kg = pr.ecoscore_data.agribalyse.co2_total; // in kg CO2 per kg of product
 	const co2_total_100g = co2_total_kg / 10; // in kg CO2 per 100g of product
@@ -5993,7 +6305,28 @@
 			Verbrauch: calcPercentage('co2_consumption')
 		}
 	];
-	console.log(carbonFootprintChartData);
+
+	// Origins of ingredients
+	const address = pr.manufacturing_places;
+
+	onMounted(async () => {
+		const res = await fetch(
+			`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`
+		);
+		const data = await res.json();
+		if (!data[0]) return;
+
+		const lat = parseFloat(data[0].lat);
+		const lon = parseFloat(data[0].lon);
+
+		const map = L.map('map').setView([lat, lon], 13);
+
+		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			attribution: '© OpenStreetMap contributors'
+		}).addTo(map);
+
+		L.marker([lat, lon]).addTo(map).bindPopup(address).openPopup();
+	});
 </script>
 
 <style lang="scss">
@@ -6173,6 +6506,94 @@
 					a {
 						margin-top: 1rem;
 						text-decoration: underline;
+					}
+				}
+			}
+			.ingredients-origins {
+				.ingredients-table {
+					margin-top: 2rem;
+					text-align: left;
+				}
+			}
+			.threatened-species {
+				.data {
+					.title {
+						font-size: 1.3em;
+						font-weight: 800;
+					}
+					.details {
+						font-size: 0.8em;
+						font-style: italic;
+						font-weight: 500;
+					}
+					.threatened-species-ingredient {
+						.ingredient {
+							margin-top: 3rem;
+							font-size: 0.9em;
+							font-weight: 800;
+							font-style: italic;
+						}
+					}
+				}
+			}
+			.production-system {
+				.data {
+					.ingredients-analysis {
+						display: flex;
+						flex-direction: column;
+						justify-content: center;
+						align-items: center;
+						gap: 1rem;
+						text-align: left;
+						width: 100%;
+						.line {
+							width: inherit;
+							display: flex;
+							flex-direction: row;
+							justify-content: flex-start;
+							align-items: center;
+							gap: 1rem;
+							$red: #f82145;
+							$green: #37f894;
+							&.red {
+								.line-icon {
+									background-color: rgba($red, 0.05);
+									.iconify {
+										color: $red;
+									}
+								}
+								p {
+									color: lighten($red, 7.5%);
+								}
+							}
+							&.green {
+								.line-icon {
+									background-color: rgba($green, 0.05);
+									.iconify {
+										color: $green;
+									}
+								}
+								p {
+									color: lighten($green, 7.5%);
+								}
+							}
+						}
+					}
+				}
+			}
+			.sources {
+				margin-bottom: 3.5rem;
+				.data {
+					.warning {
+						display: inline;
+						font-size: 0.8em;
+						font-weight: 500;
+						font-style: italic;
+						a {
+							color: #22d3ee;
+							text-decoration: underline;
+							white-space: nowrap;
+						}
 					}
 				}
 			}

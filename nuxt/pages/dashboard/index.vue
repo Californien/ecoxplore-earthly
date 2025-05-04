@@ -5,22 +5,22 @@
 			<UiGradientDivider class="divider" />
 			<div class="weekly-cards cards">
 				<ChallengeCard
-					name="Zwei gesunde Beine"
-					challenge="Beschreite 4 Strecken zu Fuß, anstatt mit dem Auto zu fahren."
+					name="Mobil ohne Motor"
+					challenge="Fahre eine Woche lang kein Auto und nutze stattdessen öffentliche Verkehrsmittel, Fahrrad oder gehe zu Fuß."
 					:progress="1"
-					:progress-max="4" />
+					:progress-max="1" />
 				<ChallengeCard
 					name="Bio Einkauf"
-					challenge="Suche dir 10 Bio-Produkte als Alternative zu konventionellen Produkten aus und integriere sie in deine Einkaufsliste."
-					:progress="10"
+					challenge="Suche nach 10 umweltfreundlichen Produkten (EcoScore A oder B) als Alternative zu konventionellen Produkten und integriere sie in deinen Wocheneinkauf."
+					:progress="8"
 					:progress-max="10" />
 			</div>
 			<h2 class="mt-5">Daily Challenges</h2>
 			<UiGradientDivider class="divider" />
-			<div class="weekly-cards cards mb-10">
+			<div class="daily-cards cards mb-10">
 				<ChallengeCard
-					name="Auspuff fett scheiße"
-					challenge="Beschreite 1 Strecken	 zu Fuß, anstatt mit dem Auto zu fahren."
+					name="Klimadusche"
+					challenge="Dusche weniger als 5 Minuten und nutze dabei kein heißes Wasser."
 					:progress="0"
 					:progress-max="1" />
 			</div>
