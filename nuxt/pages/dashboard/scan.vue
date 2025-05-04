@@ -164,7 +164,9 @@
 			</div>
 			<div ref="resultOverlay" class="result-overlay">
 				<ScanResultOverlayContent
-					:api-response="response"
+					v-if="response?.value"
+					:key="response?.value.code"
+					:api-response="response?.value"
 					:parent-div="resultOverlay" />
 			</div>
 			<!-- <p>📦 Produkt-ID: {{ scannedCode }}</p> -->
@@ -194,7 +196,7 @@
 	const cornerBL = ref<HTMLDivElement | null>(null);
 	const cornerBR = ref<HTMLDivElement | null>(null);
 	const resultOverlay = ref<HTMLDivElement | null>(null);
-	const response = ref<OpenFoodFactsProduct>({} as OpenFoodFactsProduct);
+	const response = ref<OpenFoodFactsProductRef>();
 
 	async function getCameras() {
 		try {
@@ -483,7 +485,7 @@
 		const data = await $fetch<OpenFoodFactsProduct>(
 			`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`
 		);
-		response.value = data as OpenFoodFactsProduct;
+		response.value = { value: data } as OpenFoodFactsProductRef;
 		console.log(response.value);
 		gsap.to(resultOverlay.value, {
 			duration: 1,
@@ -596,11 +598,11 @@
 				border-radius: inherit;
 				background-color: rgba(0, 0, 0, 0.65);
 				transform: translateY(
-					0%
+					100%
 				); // to: translateY(0%); | from: translateY(100%);
-				opacity: 1; // to: opacity: 1; | from: opacity: 0;
+				opacity: 0; // to: opacity: 1; | from: opacity: 0;
 				backdrop-filter: blur(
-					30px
+					0px
 				); // to: blur(20px); | from: blur(0px);
 			}
 			.viewport-overlay {

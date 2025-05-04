@@ -691,4 +691,7 @@ declare global {
 		status: number;
 		status_verbose: string;
 	}
+	interface OpenFoodFactsProductRef {
+		value: OpenFoodFactsProduct | null | undefined;
+	}
 }
