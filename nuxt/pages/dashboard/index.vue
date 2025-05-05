@@ -12,7 +12,7 @@
 				<ChallengeCard
 					name="Bio Einkauf"
 					challenge="Suche nach 10 umweltfreundlichen Produkten (EcoScore A oder B) als Alternative zu konventionellen Produkten und integriere sie in deinen Wocheneinkauf."
-					:progress="8"
+					:progress="4"
 					:progress-max="10" />
 			</div>
 			<h2 class="mt-5">Daily Challenges</h2>
@@ -43,6 +43,11 @@
 		}
 		.cards {
 			margin-top: 16px;
+			&.daily-cards {
+				> *:last-child {
+					margin-bottom: 8rem;
+				}
+			}
 		}
 		.divider {
 			margin-top: 16px;

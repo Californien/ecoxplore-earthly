@@ -15,12 +15,21 @@
 						<div class="flex justify-between text-sm">
 							<span>Fortschritt</span>
 							<span class="text-muted-foreground">
-								{{ progress }} / {{ progressMax }}
+								{{ currentProgress }} / {{ progressMax }}
 							</span>
 						</div>
 						<UiProgress
 							v-model="value"
 							:class="satisfied ? '[&>div]:bg-green-400' : ''" />
+						<UiButton
+							variant="secondary"
+							size="xs"
+							class="bg-[#fafafa0d] rounded-[8px]"
+							:disabled="satisfied"
+							@click="(event) => handleClick(event)">
+							<Icon name="lucide:plus" />
+							Fortschritt hinzufügen
+						</UiButton>
 					</div>
 				</UiCardContent>
 			</template>
@@ -44,8 +53,34 @@
 		}
 	});
 
-	const value = (props.progress / props.progressMax) * 100;
-	const satisfied = value === 100;
+	const currentProgress = ref(props.progress);
+	const value = computed(
+		() => (currentProgress.value / props.progressMax) * 100
+	);
+	const satisfied = computed(() => value.value === 100);
+
+	function handleClick(event: MouseEvent) {
+		currentProgress.value++;
+
+		if (currentProgress.value === props.progressMax) {
+			const target = event.currentTarget as HTMLElement;
+			if (!target) return;
+			const rect = target.getBoundingClientRect();
+			const centerX = rect.left + rect.width / 2;
+			const centerY = rect.top + rect.height / 2;
+			const centerX_ = centerX / window.innerWidth;
+			const centerY_ = centerY / window.innerHeight;
+			triggerConfetti(centerX_, centerY_);
+		}
+	}
+
+	function triggerConfetti(x: number, y: number) {
+		useConfetti({
+			particleCount: 200,
+			spread: 80,
+			origin: { x, y }
+		});
+	}
 </script>
 
 <style lang="scss">

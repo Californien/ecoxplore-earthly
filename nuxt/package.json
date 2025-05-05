@@ -28,6 +28,7 @@
 		"@vee-validate/yup": "^4.15.0",
 		"@vueuse/nuxt": "^12.8.2",
 		"axios": "^1.7.9",
+		"canvas-confetti": "^1.9.3",
 		"gsap": "^3.12.7",
 		"leaflet": "^1.9.4",
 		"nuxt": "^3.16.2",
