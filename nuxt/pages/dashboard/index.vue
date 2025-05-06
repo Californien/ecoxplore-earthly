@@ -7,12 +7,12 @@
 				<ChallengeCard
 					name="Mobil ohne Motor"
 					challenge="Fahre eine Woche lang kein Auto und nutze stattdessen öffentliche Verkehrsmittel, Fahrrad oder gehe zu Fuß."
-					:progress="1"
+					:progress="0"
 					:progress-max="1" />
 				<ChallengeCard
 					name="Bio Einkauf"
 					challenge="Suche nach 10 umweltfreundlichen Produkten (EcoScore A oder B) als Alternative zu konventionellen Produkten und integriere sie in deinen Wocheneinkauf."
-					:progress="4"
+					:progress="0"
 					:progress-max="10" />
 			</div>
 			<h2 class="mt-5">Daily Challenges</h2>
