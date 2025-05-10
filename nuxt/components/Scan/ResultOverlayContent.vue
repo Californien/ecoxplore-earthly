@@ -14,11 +14,23 @@
 				<div class="title">
 					<p>Ergebnisse für:</p>
 					<h1>
-						{{ pr.product_name_de }}
+						{{
+							pr.product_name_de
+								? pr.product_name_de
+								: 'Name unbekannt'
+						}}
 					</h1>
 					<div class="detail-title">
-						<h2>{{ props.apiResponse.code }}</h2>
-						<h3>{{ pr.quantity }}</h3>
+						<h2>
+							{{
+								props.apiResponse.code
+									? props.apiResponse.code
+									: 'Barcode Nummer unbekannt'
+							}}
+						</h2>
+						<h3>
+							{{ pr.quantity ? pr.quantity : 'Menge unbekannt' }}
+						</h3>
 					</div>
 				</div>
 
@@ -101,7 +113,7 @@
 
 				<div class="ecoscore-data carbon-footprint">
 					<div
-						v-if="pr.ecoscore_data.agribalyse.co2_total"
+						v-if="pr.ecoscore_data?.agribalyse?.co2_total"
 						class="data">
 						<UiFancyIcon
 							type="light"
@@ -166,8 +178,8 @@
 				<div class="ecoscore-data packaging-impact">
 					<div
 						v-if="
-							pr.ecoscore_data.adjustments.packaging.warning !==
-							'packaging_data_missing'
+							pr.ecoscore_data?.adjustments?.packaging
+								?.warning !== 'packaging_data_missing'
 						"
 						class="data">
 						<UiFancyIcon
@@ -177,8 +189,8 @@
 							class="icon-seperator" />
 						<span
 							v-if="
-								pr.ecoscore_data.adjustments.packaging.value >=
-								-5
+								pr.ecoscore_data?.adjustments?.packaging
+									?.value >= -5
 							"
 							class="title"
 							style="color: #f94b7d">
@@ -186,8 +198,8 @@
 						</span>
 						<span
 							v-else-if="
-								pr.ecoscore_data.adjustments.packaging.value >=
-								-12
+								pr.ecoscore_data?.adjustments?.packaging
+									?.value >= -12
 							"
 							class="title"
 							style="color: #fd927a">
@@ -216,7 +228,8 @@
 								<UiTableBody class="last:border-b">
 									<template
 										v-for="packaging in pr.ecoscore_data
-											.adjustments.packaging.packagings"
+											?.adjustments?.packaging
+											?.packagings"
 										:key="packaging.material">
 										<UiTableRow>
 											<UiTableCell class="font-medium">
@@ -258,8 +271,8 @@
 
 						<div
 							v-if="
-								pr.ecoscore_data.adjustments.packaging
-									.warning ===
+								pr.ecoscore_data?.adjustments?.packaging
+									?.warning ===
 								('unspecified_material' as string)
 							"
 							class="unspecified-material-warning">
@@ -296,8 +309,9 @@
 				<div class="ecoscore-data ingredients-origins">
 					<div
 						v-if="
-							pr.ecoscore_data.adjustments.origins_of_ingredients
-								.warning !== 'origins_are_100_percent_unknown'
+							pr.ecoscore_data?.adjustments
+								?.origins_of_ingredients?.warning !==
+							'origins_are_100_percent_unknown'
 						"
 						class="data">
 						<UiFancyIcon
@@ -307,8 +321,8 @@
 							class="icon-seperator" />
 						<span
 							v-if="
-								pr.ecoscore_data.adjustments
-									.origins_of_ingredients.epi_score <= 50
+								pr.ecoscore_data?.adjustments
+									?.origins_of_ingredients?.epi_score <= 50
 							"
 							class="title"
 							style="color: #f94b7d">
@@ -316,8 +330,8 @@
 						</span>
 						<span
 							v-else-if="
-								pr.ecoscore_data.adjustments
-									.origins_of_ingredients.epi_score > 93
+								pr.ecoscore_data?.adjustments
+									?.origins_of_ingredients?.epi_score > 93
 							"
 							class="title"
 							style="color: #34d399">
@@ -348,8 +362,9 @@
 								<UiTableBody class="last:border-b">
 									<template
 										v-for="ingr in pr.ecoscore_data
-											.adjustments.origins_of_ingredients
-											.aggregated_origins"
+											?.adjustments
+											?.origins_of_ingredients
+											?.aggregated_origins"
 										:key="ingr.percent">
 										<UiTableRow>
 											<UiTableCell class="font-medium">
@@ -472,8 +487,8 @@
 							class="icon-seperator mt-6" />
 						<div
 							v-if="
-								!pr.ecoscore_data.adjustments.threatened_species
-									.ingredient
+								!pr.ecoscore_data?.adjustments
+									?.threatened_species?.ingredient
 							">
 							<span class="title" style="color: #34d399">
 								Keine Zutaten, die Arten gefährden
@@ -486,8 +501,8 @@
 							<div class="threatened-species-ingredient">
 								<span
 									v-if="
-										pr.ecoscore_data.adjustments
-											.threatened_species.ingredient ===
+										pr.ecoscore_data?.adjustments
+											?.threatened_species?.ingredient ===
 										'en:palm-oil'
 									"
 									class="ingredient">
@@ -495,8 +510,8 @@
 								</span>
 								<span v-else class="ingredient">
 									{{
-										pr.ecoscore_data.adjustments
-											.threatened_species.ingredient
+										pr.ecoscore_data?.adjustments
+											?.threatened_species?.ingredient
 									}}
 								</span>
 							</div>
@@ -695,7 +710,9 @@
 		}
 	}
 
-	const ecoscore_id: number = scoreToId(pr.ecoscore_data.grades.de);
+	const ecoscore_id: number = scoreToId(
+		pr.ecoscore_data?.grades?.de ?? pr.ecoscore_grade
+	);
 
 	// EcoScore items
 	const items = [
@@ -749,7 +766,7 @@
 		}
 	];
 	// Carbon Footprint
-	const co2_total_kg = pr.ecoscore_data.agribalyse.co2_total; // in kg CO2 per kg of product
+	const co2_total_kg = pr.ecoscore_data?.agribalyse?.co2_total ?? 0; // in kg CO2 per kg of product
 	const co2_total_100g = co2_total_kg / 10; // in kg CO2 per 100g of product
 	const petrol_car_equivalent = co2_total_100g / 0.18; // in km
 	const petrol_car_equivalent_color =
@@ -768,13 +785,14 @@
 		| 'co2_transportation';
 
 	function calcPercentage(category: AgribalyseKeys): number {
-		const co2_category = pr.ecoscore_data.agribalyse[category];
-		if (co2_category) {
+		if (pr.ecoscore_data?.agribalyse) {
+			const co2_category = pr.ecoscore_data.agribalyse[category];
 			const result = co2_category / pr.ecoscore_data.agribalyse.co2_total;
 			const result_ = result * 10000;
 			return Math.floor(result_) / 100;
+		} else {
+			return 0;
 		}
-		return 0;
 	}
 
 	const carbonFootprintChartData = [
@@ -810,6 +828,8 @@
 
 		L.marker([lat, lon]).addTo(map).bindPopup(address).openPopup();
 	});
+
+	console.log(pr);
 </script>
 
 <style lang="scss">
@@ -834,6 +854,7 @@
 			}
 		}
 		.content {
+			color: white;
 			.content-scroll-area {
 				mask-image: linear-gradient(
 					0deg,
