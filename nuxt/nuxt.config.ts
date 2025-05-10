@@ -12,13 +12,13 @@ export default defineNuxtConfig({
 	css: ['./assets/scss/main.scss'],
 
 	tailwindcss: {
-        exposeConfig: true,
-        editorSupport: true
-    },
+		exposeConfig: true,
+		editorSupport: true
+	},
 
 	colorMode: {
-        classSuffix: ""
-    },
+		classSuffix: ''
+	},
 
 	imports: {
 		imports: [
@@ -77,10 +77,7 @@ export default defineNuxtConfig({
 	// Module settings
 	// -> Strapi
 	strapi: {
-		url:
-			process.env.NODE_ENV === 'production'
-				? process.env.STRAPI_URL
-				: 'http://localhost:1337',
+		url: process.env.STRAPI_URL,
 		auth: { populate: ['role'] },
 		cookieName: 'jwt_auth',
 		cookie: {
